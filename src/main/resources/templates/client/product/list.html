@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/list.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+<nav class="navbar navbar-dark bg-primary">
+    <button class="shopping-cart" data-target="#cart" data-toggle="modal" type="button">
+        <i aria-hidden="true" class="fa fa-shopping-cart" style=""></i>
+        <span class="item-amount">0</span>
+    </button>
+</nav>
+
+<th:block th:unless="${#lists.isEmpty(products)}">
+    <div class="container-fluid">
+        <div class="row d-flex justify-content-around">
+            <div class="card col-lg-4" style="width: 18rem;" th:each="item: ${products}">
+                <img alt="Card image cap" class="card-img-top" src="#">
+                <div class="card-body">
+                    <h5 class="card-title" th:text="${item.name}"></h5>
+                    <p class="card-text" th:text="${item.description}"></p>
+                    <a class="add-to-cart btn btn-primary"
+                       th:href="@{/product/cart/{laptop-id}(laptop-id=${item.laptopId})}">Add to cart</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+<div aria-hidden="true" aria-labelledby="exampleModalLabel" class="modal fade" id="cart" tabindex="-1">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Cart</h5>
+                <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+                    <span aria-hidden="true" class="close-modal">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <th:block th:unless="${#lists.isEmpty(cart)}">
+                    <table class="table">
+                        <tr>
+                            <th>#</th>
+                            <th>Sản phẩm</th>
+                            <th>Giá</th>
+                            <th>Số lượng</th>
+                            <th>Thành tiền</th>
+                            <th></th>
+                        </tr>
+                        <tr th:each="item, state: ${cart}">
+                            <td th:text="${state.count}"></td>
+                            <td th:text="${item.laptop.name}"></td>
+                            <td th:text="${item.laptop.unitPrice.longValue()}"></td>
+                            <td><input class="update-item" min="1" th:data-id="${item.laptop.laptopId}"
+                                       th:value="${item.quantity}" type="number"/></td>
+                            <td th:text="${item.unitPrice.longValue()}"></td>
+                            <td>
+                                <a class="btn btn-danger btn-remove-item"
+                                   th:href="@{/product/cart/{laptop-id}(laptop-id=${item.laptop.laptopId})}">Xóa</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-right" colspan="4">Tổng tiền</td>
+                            <td th:text="${#aggregates.sum(cart.![unitPrice])}"></td>
+                            <td></td>
+                        </tr>
+                    </table>
+
+                    <a class="btn btn-success" th:href="@{/order}">Gửi đơn hàng</a>
+                </th:block>
+
+                <th:block th:if="${#lists.isEmpty(cart)}">
+                    <h3>KHÔNG CÓ SẢN PHẨM</h3>
+                </th:block>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary close-modal" data-dismiss="modal" type="button">Close</button>
+                <th:block th:unless="${#lists.isEmpty(cart)}">
+                    <button class="btn btn-primary" type="button">Order now</button>
+                </th:block>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/js/jquery.min.js}"></script>
+<script th:src="@{/js/bootstrap.min.js}"></script>
+<script th:src="@{/js/popper.min.js}"></script>
+<script th:src="@{/js/fontawesome.min.js}"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('.add-to-cart').click(function (event) {
+            event.preventDefault();
+            let url = $(this).attr('href')
+
+            $.ajax({
+                type: 'GET',
+                url: `${url}`,
+                dataType: 'json',
+                success: (response) => {
+                    const cart = response;
+                    loadCart(cart)
+                }
+            })
+        });
+
+        $(document).on('click', '.btn-remove-item', function (event) {
+            event.preventDefault();
+            let url = $(this).attr('href')
+
+            $.ajax({
+                type: 'DELETE',
+                url: `${url}`,
+                dataType: 'json',
+                success: (response) => {
+                    const cart = response;
+                    loadCart(cart)
+                }
+            })
+            return false;
+        });
+
+        $(document).on('change', '.update-item', function (event) {
+            let id = $(this).data('id')
+            let quantity = $(this).val();
+
+            console.log(id + quantity);
+            $.ajax({
+                type: 'POST',
+                url: `/product/cart/${id}`,
+                data: {quantity: quantity},
+                dataType: 'json',
+                success: (response) => {
+                    const cart = response;
+                    loadCart(cart)
+                }
+            })
+        });
+
+        $(".close-modal").on('click', function () {
+            $('#cart').modal('hide');
+        })
+    });
+
+    const loadCart = function (cart) {
+        let str = "";
+        let totalPrice = 0;
+
+        $('.modal-body').empty();
+
+        if (cart.length > 0) {
+            $.each(cart, function (key, value) {
+                totalPrice += value["unitPrice"];
+                str += `<tr>
+                        <td>${key + 1}</td>
+                        <td>${value["laptop"]["name"]}</td>
+                        <td>${value["laptop"]["unitPrice"]}</td>
+                        <td><input type="number" value="${value["quantity"]}" min="1"
+                            class="update-item" data-id="${value["laptop"]["laptopId"]}"/></td>
+                        <td>${value["unitPrice"]}</td>
+                        <td>
+                            <a class="btn btn-danger btn-remove-item"
+                            href="/product/cart/${value["laptop"]["laptopId"]}">Xóa</a>
+                        </td>
+                    </tr>`
+            })
+            str += `<tr>
+                    <td colspan="4" class="text-right">Tổng tiền</td>
+                    <td>${totalPrice}</td>
+                    <td></td>
+                </tr>`
+            $('.modal-body').html(`
+                    <table class="table">
+                        <tr>
+                            <th>#</th>
+                            <th>Sản phẩm</th>
+                            <th>Giá</th>
+                            <th>Số lượng</th>
+                            <th>Thành tiền</th>
+                            <th></th>
+                        </tr>
+                        ${str}
+                    </table>
+                    <a href="/order" class="btn btn-success">Gửi đơn hàng</a>`);
+        } else {
+            $('.modal-body').html(`<h3>KHÔNG CÓ SẢN PHẨM</h3>`);
+        }
+    }
+</script>
+</body>
+</html>
