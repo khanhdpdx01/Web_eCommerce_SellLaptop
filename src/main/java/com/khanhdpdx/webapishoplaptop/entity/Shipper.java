@@ -23,10 +23,10 @@ public class Shipper {
     @Column(name = "company_name", columnDefinition = "nvarchar(255) not null")
     private String companyName;
 
-    @OneToMany(mappedBy = "shipper", cascade = CascadeType.ALL)
-    private Set<Order> orders;
+/*    @OneToMany(mappedBy = "shipper", cascade = CascadeType.ALL)
+    private Set<Order> orders;*/
 
-    @OneToOne
+    @OneToOne/*(fetch = FetchType.LAZY)*/
     @JoinColumn(name = "user_id")
     private User user;
  /*   @Column(name = "user_id")

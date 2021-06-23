@@ -1,4 +1,4 @@
 package com.khanhdpdx.webapishoplaptop.service;
 
-public interface AccountService {
+public interface ShoppingCartService {
 }

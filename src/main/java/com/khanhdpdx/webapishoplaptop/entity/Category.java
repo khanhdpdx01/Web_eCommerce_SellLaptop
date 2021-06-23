@@ -1,9 +1,8 @@
 package com.khanhdpdx.webapishoplaptop.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.Set;
@@ -12,6 +11,7 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 @Entity
 @Table(name = "category")
 public class Category {
@@ -23,6 +23,6 @@ public class Category {
             columnDefinition = "nvarchar(255) not null")
     private String categoryName;
 
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
-    private Set<Laptop> laptops;
+  /*  @OneToMany(mappedBy = "category")
+    private Set<Laptop> laptops;*/
 }

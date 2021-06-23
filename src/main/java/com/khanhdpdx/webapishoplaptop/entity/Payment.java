@@ -22,6 +22,6 @@ public class Payment {
     @Column(name = "payment_name", columnDefinition = "nvarchar(100) not null")
     private String paymentName;
 
-    @OneToMany(mappedBy = "payment",cascade =  CascadeType.ALL)
-    private Set<Order> orders;
+/*    @OneToMany(mappedBy = "payment",cascade =  CascadeType.ALL)
+    private Set<Order> orders;*/
 }

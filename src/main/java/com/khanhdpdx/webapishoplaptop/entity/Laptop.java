@@ -1,5 +1,7 @@
 package com.khanhdpdx.webapishoplaptop.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,13 +16,12 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Embeddable
 @Table(name = "laptop")
 public class Laptop {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long laptopId;
-    @Column(columnDefinition = "nvarchar(255) not null")
+    @Column(name = "name", columnDefinition = "nvarchar(255) not null")
     private String name;
     @Column(nullable = false)
     private Float unitPrice;

@@ -1,4 +1,8 @@
 package com.khanhdpdx.webapishoplaptop.repository;
 
-public interface UserRepository {
+import com.khanhdpdx.webapishoplaptop.entity.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface UserRepository extends JpaRepository<User, Long> {
+    User findFirstByUsername(String username);
 }

@@ -1,5 +1,7 @@
 package com.khanhdpdx.webapishoplaptop.entity;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,6 +24,6 @@ public class Role {
     @Column(name = "role_name")
     private String roleName;
 
-    @OneToMany(mappedBy = "role", cascade = CascadeType.ALL)
-    private Set<User> users;
+/*    @OneToMany(mappedBy = "role", cascade = CascadeType.ALL)
+    private Set<User> users;*/
 }

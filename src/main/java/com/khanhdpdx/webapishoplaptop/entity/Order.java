@@ -1,5 +1,7 @@
 package com.khanhdpdx.webapishoplaptop.entity;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,6 +18,9 @@ import java.util.Set;
 @AllArgsConstructor
 @Entity
 @Table(name = "orders")
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "orderId")
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,7 +34,7 @@ public class Order {
     @Column(nullable = false)
     private Integer status;
 
-    @ManyToOne
+    @ManyToOne/*(fetch = FetchType.LAZY)*/
     @JoinColumn(name = "user_id")
     private User user;
     /*@Column(name = "user_id")

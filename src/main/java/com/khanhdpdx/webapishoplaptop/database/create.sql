@@ -23,21 +23,15 @@ create table users (
   email varchar(50) not null,
   name nvarchar(50) not null,
   phone varchar(15) not null,
+  password varchar(60) not null,
+  status integer,
+  username nvarchar(30) not null,
   role_id bigint,
   primary key (user_id),
   constraint fk_role_id foreign key (role_id) references role (role_id)
   on delete cascade on update cascade
 );
-create table account (
-  account_id bigint not null auto_increment,
-  password nvarchar(30) not null,
-  status integer,
-  username nvarchar(30) not null,
-  user_id bigint not null,
-  primary key (account_id),
-  constraint fk_user_id foreign key (user_id) references users (user_id)
-  on delete cascade on update cascade
-);
+
 create table shipper (
   shipper_id bigint not null auto_increment,
   company_name nvarchar(255) not null,
@@ -46,6 +40,7 @@ create table shipper (
   constraint fk_user_shipper foreign key (user_id) references users (user_id)
   on delete cascade on update cascade
 );
+
 create table laptop (
   laptop_id bigint not null auto_increment,
   description text not null,

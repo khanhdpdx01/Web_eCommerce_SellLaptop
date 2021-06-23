@@ -1,5 +1,7 @@
 package com.khanhdpdx.webapishoplaptop.entity;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,8 +29,16 @@ public class User {
     @Column(columnDefinition = "varchar(15) not null")
     private String phone;
 
-    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
-    private Set<Order> orders;
+    @Column(name = "username")
+    private String username;
+
+    @Column(name = "password")
+    private String password;
+
+    private Integer status;
+
+/*    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
+    private Set<Order> orders;*/
 
     @ManyToOne
     @JoinColumn(name = "role_id")
