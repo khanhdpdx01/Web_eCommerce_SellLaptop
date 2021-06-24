@@ -99,7 +99,7 @@
     $(document).ready(function () {
 
         $(document).on('click', '.add-to-cart', function (event) {
-            /*event.preventDefault();*/
+            event.preventDefault();
             let url = $(this).attr('href')
 
             $.ajax({
@@ -109,6 +109,12 @@
                 success: (response) => {
                     const cart = response;
                     loadCart(cart)
+                },
+                error: function (error) {
+                    if(error.status == 401) {
+                        location.href = "/login";
+                    }
+                    
                 }
             })
         });
@@ -122,7 +128,7 @@
                 url: `${url}`,
                 dataType: 'json',
                 success: (response) => {
-                    const cart = response;
+                    const cart = response
                     loadCart(cart)
                 }
             })

@@ -7,9 +7,9 @@
 <body>
 <div class="main-content">
     <h3>Login to continue</h3>
-    <form th:action="@{/j_spring_security_login}" method="POST">
-        <input type="text" name="username" placeholder="Your username" /><br />
-        <input type="password" name="password" placeholder="Your password" /><br />
+    <form th:action="@{/authenticate}" th:object="${jwtRequest}" method="POST">
+        <input type="text" th:field="*{username}" name="username" placeholder="Your username"/><br />
+        <input type="password" th:field="*{password}" name="password" placeholder="Your password" /><br />
         <button type="submit">Login</button> <br />
     </form>
 </div>
