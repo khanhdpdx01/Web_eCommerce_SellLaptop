@@ -8,19 +8,25 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.List;
 
 @Controller
 @RequestMapping("/product")
-@SessionAttributes("cart")
+/*@SessionAttributes("cart")*/
 public class LaptopController {
     @Autowired
     private LaptopService laptopService;
 
     @GetMapping
-    public String list(@ModelAttribute("cart") List<ShoppingCartDTO> cart, Model model) {
+    public String list(/*@ModelAttribute("cart") List<ShoppingCartDTO> cart,*/
+            Model model,
+            HttpServletRequest request) {
+        List<ShoppingCartDTO> cart = getShoppingCart(request);
         model.addAttribute("products", laptopService.findAll());
         model.addAttribute("cart", cart);
         return "client/product/list";
@@ -40,8 +46,10 @@ public class LaptopController {
 
     @GetMapping("/cart/{laptop-id}")
     @ResponseBody
-    public List<ShoppingCartDTO> addToCart(@ModelAttribute("cart") List<ShoppingCartDTO> cart,
-                                           @PathVariable("laptop-id") Long id) {
+    public List<ShoppingCartDTO> addToCart(/*@ModelAttribute("cart") List<ShoppingCartDTO> cart,*/
+                                           @PathVariable("laptop-id") Long id,
+                                           HttpServletRequest request) {
+        List<ShoppingCartDTO> cart = getShoppingCart(request);
         boolean existedLaptop = false;
         for (ShoppingCartDTO item : cart) {
             if (item.getLaptop().getLaptopId() == id) {
@@ -64,18 +72,20 @@ public class LaptopController {
         return cart;
     }
 
-    @ModelAttribute("cart")
+    /*@ModelAttribute("cart")
     public List<ShoppingCartDTO> create(HttpServletRequest request) {
         // fix error: Cannot create a session after the response has been committed
         // followed by https://github.com/spring-projects/spring-framework/issues/17475
         request.getSession(true);
         return new ArrayList<>();
-    }
+    }*/
 
     @PostMapping("/cart/{laptop-id}")
     @ResponseBody
-    public List<ShoppingCartDTO> updateCart(@ModelAttribute("cart") List<ShoppingCartDTO> cart,
-                                            @PathVariable("laptop-id") Long id, Integer quantity) {
+    public List<ShoppingCartDTO> updateCart(/*@ModelAttribute("cart") List<ShoppingCartDTO> cart,*/
+                                            @PathVariable("laptop-id") Long id, Integer quantity,
+                                            HttpServletRequest request) {
+        List<ShoppingCartDTO> cart = getShoppingCart(request);
         if (quantity > 0) {
             for (ShoppingCartDTO item : cart) {
                 if (item.getLaptop().getLaptopId() == id) {
@@ -90,8 +100,10 @@ public class LaptopController {
 
     @DeleteMapping("/cart/{laptop-id}")
     @ResponseBody
-    public List<ShoppingCartDTO> deleteCart(@ModelAttribute("cart") List<ShoppingCartDTO> cart,
-                                            @PathVariable("laptop-id") Long id) {
+    public List<ShoppingCartDTO> deleteCart(/*@ModelAttribute("cart") List<ShoppingCartDTO> cart,*/
+                                            @PathVariable("laptop-id") Long id,
+                                            HttpServletRequest request) {
+        List<ShoppingCartDTO> cart = getShoppingCart(request);
         int size = cart.size();
         for (int i = 0; i < size; ++i) {
             if (cart.get(i).getLaptop().getLaptopId() == id) {
@@ -108,6 +120,15 @@ public class LaptopController {
         return laptopService.findAll();
     }
 
+    private List<ShoppingCartDTO> getShoppingCart(HttpServletRequest request) {
+        HttpSession session = request.getSession();
+        List<ShoppingCartDTO> cart = (List<ShoppingCartDTO>)session.getAttribute("cart");
+        if(cart == null) {
+            cart = new ArrayList<>();
+            session.setAttribute("cart", cart);
+        }
+        return cart;
+    }
 
     // cal sum money
     // payment -> order -> order details

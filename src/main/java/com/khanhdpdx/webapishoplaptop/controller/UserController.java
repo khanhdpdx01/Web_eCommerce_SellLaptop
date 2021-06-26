@@ -6,9 +6,11 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.util.WebUtils;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.security.Principal;
 
 @Controller
@@ -30,5 +32,11 @@ public class UserController {
     @GetMapping("/403")
     public String accessDenied() {
         return "403";
+    }
+
+    @GetMapping("/test")
+    @ResponseBody
+    public String test(HttpSession session) {
+        return session.getId();
     }
 }
