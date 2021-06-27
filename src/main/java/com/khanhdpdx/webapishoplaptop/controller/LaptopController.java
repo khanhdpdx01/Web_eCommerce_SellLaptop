@@ -1,16 +1,14 @@
 package com.khanhdpdx.webapishoplaptop.controller;
 
 import com.khanhdpdx.webapishoplaptop.dto.LaptopDTO;
-import com.khanhdpdx.webapishoplaptop.dto.ShoppingCartDTO;
+import com.khanhdpdx.webapishoplaptop.dto.OrderDetailDTO;
 import com.khanhdpdx.webapishoplaptop.service.LaptopService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +24,7 @@ public class LaptopController {
     public String list(/*@ModelAttribute("cart") List<ShoppingCartDTO> cart,*/
             Model model,
             HttpServletRequest request) {
-        List<ShoppingCartDTO> cart = getShoppingCart(request);
+        List<OrderDetailDTO> cart = getShoppingCart(request);
         model.addAttribute("products", laptopService.findAll());
         model.addAttribute("cart", cart);
         return "client/product/list";
@@ -40,18 +38,18 @@ public class LaptopController {
 
     @GetMapping("/cart")
     @ResponseBody
-    public List<ShoppingCartDTO> getCart(@ModelAttribute("cart") List<ShoppingCartDTO> cart) {
+    public List<OrderDetailDTO> getCart(@ModelAttribute("cart") List<OrderDetailDTO> cart) {
         return cart;
     }
 
     @GetMapping("/cart/{laptop-id}")
     @ResponseBody
-    public List<ShoppingCartDTO> addToCart(/*@ModelAttribute("cart") List<ShoppingCartDTO> cart,*/
+    public List<OrderDetailDTO> addToCart(/*@ModelAttribute("cart") List<ShoppingCartDTO> cart,*/
                                            @PathVariable("laptop-id") Long id,
                                            HttpServletRequest request) {
-        List<ShoppingCartDTO> cart = getShoppingCart(request);
+        List<OrderDetailDTO> cart = getShoppingCart(request);
         boolean existedLaptop = false;
-        for (ShoppingCartDTO item : cart) {
+        for (OrderDetailDTO item : cart) {
             if (item.getLaptop().getLaptopId() == id) {
                 existedLaptop = true;
                 item.setQuantity(item.getQuantity() + 1);
@@ -62,7 +60,7 @@ public class LaptopController {
         // laptop not exist
         if (!existedLaptop) {
             LaptopDTO newItem = laptopService.findById(id);
-            cart.add(new ShoppingCartDTO(
+            cart.add(new OrderDetailDTO(
                     newItem,
                     1,
                     newItem.getUnitPrice(),
@@ -82,12 +80,12 @@ public class LaptopController {
 
     @PostMapping("/cart/{laptop-id}")
     @ResponseBody
-    public List<ShoppingCartDTO> updateCart(/*@ModelAttribute("cart") List<ShoppingCartDTO> cart,*/
+    public List<OrderDetailDTO> updateCart(/*@ModelAttribute("cart") List<ShoppingCartDTO> cart,*/
                                             @PathVariable("laptop-id") Long id, Integer quantity,
                                             HttpServletRequest request) {
-        List<ShoppingCartDTO> cart = getShoppingCart(request);
+        List<OrderDetailDTO> cart = getShoppingCart(request);
         if (quantity > 0) {
-            for (ShoppingCartDTO item : cart) {
+            for (OrderDetailDTO item : cart) {
                 if (item.getLaptop().getLaptopId() == id) {
                     item.setQuantity(quantity);
                     item.setUnitPrice(item.getLaptop().getUnitPrice() * quantity);
@@ -100,10 +98,10 @@ public class LaptopController {
 
     @DeleteMapping("/cart/{laptop-id}")
     @ResponseBody
-    public List<ShoppingCartDTO> deleteCart(/*@ModelAttribute("cart") List<ShoppingCartDTO> cart,*/
+    public List<OrderDetailDTO> deleteCart(/*@ModelAttribute("cart") List<ShoppingCartDTO> cart,*/
                                             @PathVariable("laptop-id") Long id,
                                             HttpServletRequest request) {
-        List<ShoppingCartDTO> cart = getShoppingCart(request);
+        List<OrderDetailDTO> cart = getShoppingCart(request);
         int size = cart.size();
         for (int i = 0; i < size; ++i) {
             if (cart.get(i).getLaptop().getLaptopId() == id) {
@@ -120,9 +118,9 @@ public class LaptopController {
         return laptopService.findAll();
     }
 
-    private List<ShoppingCartDTO> getShoppingCart(HttpServletRequest request) {
+    private List<OrderDetailDTO> getShoppingCart(HttpServletRequest request) {
         HttpSession session = request.getSession();
-        List<ShoppingCartDTO> cart = (List<ShoppingCartDTO>)session.getAttribute("cart");
+        List<OrderDetailDTO> cart = (List<OrderDetailDTO>)session.getAttribute("cart");
         if(cart == null) {
             cart = new ArrayList<>();
             session.setAttribute("cart", cart);

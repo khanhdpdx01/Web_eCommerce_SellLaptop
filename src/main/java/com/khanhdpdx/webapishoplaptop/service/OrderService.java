@@ -6,5 +6,5 @@ import java.util.List;
 
 public interface OrderService {
     List<OrderDTO> findAll();
-
+    OrderDTO createOrder(OrderDTO orderDTO);
 }

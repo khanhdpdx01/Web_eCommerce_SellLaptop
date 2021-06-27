@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Login Page</title>
+</head>
+<body>
+<div class="main-content">
+    <h3>Login to continue</h3>
+    <form th:action="@{/order}" th:object="${order}" method="POST">
+        <input type="text" th:field="*{username}" name="username" placeholder="Họ và tên người nhận"/><br />
+        <input type="text" th:field="*{shipAddress}" name="shipAddress" placeholder="Địa chỉ giao hàng" /><br />
+        <select type="text" th:field="*{companyName}" name="companyName" placeholder="Đơn vị giao hàng" >
+            <option th:each="item : ${shipper}" th:value="${item.shipperId}" th:text="${item.companyName}"></option>
+        </select><br />
+        <select type="text" th:field="*{paymentName}" name="paymentName" placeholder="Phương thức thanh toán" >
+            <option th:each="item : ${payment}" th:value="${item.paymentId}" th:text="${item.paymentName}"></option>
+        </select><br />
+        <input type="text" th:field="*{freightCost}" name="freightCost" placeholder="Phí vận chuyển" /><br />
+        <button type="submit">Login</button> <br />
+    </form>
+</div>
+</body>
+</html>
