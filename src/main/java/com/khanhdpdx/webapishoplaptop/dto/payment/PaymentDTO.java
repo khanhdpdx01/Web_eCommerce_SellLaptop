@@ -10,7 +10,6 @@ import lombok.experimental.Accessors;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Accessors(chain = true)
 public class PaymentDTO {
     private Long paymentId;
 

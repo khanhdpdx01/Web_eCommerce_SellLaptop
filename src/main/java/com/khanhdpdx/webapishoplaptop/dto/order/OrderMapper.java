@@ -10,9 +10,9 @@ import java.util.List;
 @Mapper
 public interface OrderMapper {
     OrderMapper MAPPER = Mappers.getMapper(OrderMapper.class);
-    @Mapping(target = "username", source = "order.user.username")
-    @Mapping(target = "companyName", source = "order.shipper.companyName")
-    @Mapping(target = "paymentName", source = "order.payment.paymentName")
+    @Mapping(target = "userId", source = "order.user.userId")
+    @Mapping(target = "shipperId", source = "order.shipper.shipperId")
+    @Mapping(target = "paymentId", source = "order.payment.paymentId")
     OrderDTO from(Order order);
 
     List<OrderDTO> fromOrders(List<Order> orders);

@@ -12,10 +12,19 @@
     <button class="shopping-cart" data-target="#cart" data-toggle="modal" type="button">
         <i aria-hidden="true" class="fa fa-shopping-cart" style=""></i>
         <span class="item-amount">0</span>
-
-        <a th:href="@{/logout}">Logout</a>
     </button>
+
+    <a th:href="@{/logout}">Logout</a>
 </nav>
+
+<th:block th:if="${message}">
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        <strong th:text="${message}"></strong>
+        <button type="button" class="btn-close-message close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+</th:block>
 
 <th:block th:unless="${#lists.isEmpty(products)}">
     <div class="container-fluid">
@@ -86,10 +95,6 @@
                 </th:block>
             </div>
         </div>
-
-        <div >
-
-        </div>
     </div>
 </div>
 
@@ -157,6 +162,11 @@
         $(".close-modal").on('click', function () {
             $('#cart').modal('hide');
         })
+
+        $(document).on('click', '.btn-close-message', function () {
+            $(".alert").alert('close');
+        })
+
     });
 
     const loadCart = function (cart) {

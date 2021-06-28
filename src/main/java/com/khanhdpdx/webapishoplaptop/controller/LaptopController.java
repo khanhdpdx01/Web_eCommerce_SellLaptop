@@ -2,6 +2,7 @@ package com.khanhdpdx.webapishoplaptop.controller;
 
 import com.khanhdpdx.webapishoplaptop.dto.LaptopDTO;
 import com.khanhdpdx.webapishoplaptop.dto.OrderDetailDTO;
+import com.khanhdpdx.webapishoplaptop.dto.ShoppingCartDTO;
 import com.khanhdpdx.webapishoplaptop.service.LaptopService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -20,13 +21,17 @@ public class LaptopController {
     @Autowired
     private LaptopService laptopService;
 
+    @Autowired
+    private ShoppingCartDTO shoppingCartDTO;
+
     @GetMapping
     public String list(/*@ModelAttribute("cart") List<ShoppingCartDTO> cart,*/
             Model model,
             HttpServletRequest request) {
-        List<OrderDetailDTO> cart = getShoppingCart(request);
+        List<OrderDetailDTO> cart = shoppingCartDTO.getShoppingCart(request);
         model.addAttribute("products", laptopService.findAll());
         model.addAttribute("cart", cart);
+        model.addAttribute("message", model.asMap().get("message"));
         return "client/product/list";
     }
 
@@ -47,7 +52,7 @@ public class LaptopController {
     public List<OrderDetailDTO> addToCart(/*@ModelAttribute("cart") List<ShoppingCartDTO> cart,*/
                                            @PathVariable("laptop-id") Long id,
                                            HttpServletRequest request) {
-        List<OrderDetailDTO> cart = getShoppingCart(request);
+        List<OrderDetailDTO> cart = shoppingCartDTO.getShoppingCart(request);
         boolean existedLaptop = false;
         for (OrderDetailDTO item : cart) {
             if (item.getLaptop().getLaptopId() == id) {
@@ -83,7 +88,7 @@ public class LaptopController {
     public List<OrderDetailDTO> updateCart(/*@ModelAttribute("cart") List<ShoppingCartDTO> cart,*/
                                             @PathVariable("laptop-id") Long id, Integer quantity,
                                             HttpServletRequest request) {
-        List<OrderDetailDTO> cart = getShoppingCart(request);
+        List<OrderDetailDTO> cart = shoppingCartDTO.getShoppingCart(request);
         if (quantity > 0) {
             for (OrderDetailDTO item : cart) {
                 if (item.getLaptop().getLaptopId() == id) {
@@ -101,7 +106,7 @@ public class LaptopController {
     public List<OrderDetailDTO> deleteCart(/*@ModelAttribute("cart") List<ShoppingCartDTO> cart,*/
                                             @PathVariable("laptop-id") Long id,
                                             HttpServletRequest request) {
-        List<OrderDetailDTO> cart = getShoppingCart(request);
+        List<OrderDetailDTO> cart = shoppingCartDTO.getShoppingCart(request);
         int size = cart.size();
         for (int i = 0; i < size; ++i) {
             if (cart.get(i).getLaptop().getLaptopId() == id) {
@@ -118,15 +123,7 @@ public class LaptopController {
         return laptopService.findAll();
     }
 
-    private List<OrderDetailDTO> getShoppingCart(HttpServletRequest request) {
-        HttpSession session = request.getSession();
-        List<OrderDetailDTO> cart = (List<OrderDetailDTO>)session.getAttribute("cart");
-        if(cart == null) {
-            cart = new ArrayList<>();
-            session.setAttribute("cart", cart);
-        }
-        return cart;
-    }
+
 
     // cal sum money
     // payment -> order -> order details

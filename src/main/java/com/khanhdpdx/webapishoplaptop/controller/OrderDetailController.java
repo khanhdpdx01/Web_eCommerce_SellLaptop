@@ -19,5 +19,4 @@ public class OrderDetailController {
         return orderDetailService.findAll();
     }
 
-
 }

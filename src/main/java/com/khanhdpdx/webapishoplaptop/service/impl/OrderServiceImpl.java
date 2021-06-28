@@ -20,20 +20,13 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private OrderRepository orderRepository;
 
-    @Autowired
-    private ModelMapper modelMapper;
-
     @Override
     public List<OrderDTO> findAll() {
-        /*List<OrderDTO> orderDTOS = orderRepository.findAll()
-                .stream()
-                .map(order -> OrderMapper.MAPPER.from(order))
-                .collect(Collectors.toList());*/
         List<OrderDTO> orderDTOS = OrderMapper.MAPPER.fromOrders(orderRepository.findAll());
         return orderDTOS;
     }
 
-    public OrderDTO createOrder(OrderDTO orderDTO) {
+    public Long createOrder(OrderDTO orderDTO) {
         Order order = new Order();
         order.setFreightCost(orderDTO.getFreightCost());
         order.setOrderedDate(new Date());
@@ -42,6 +35,6 @@ public class OrderServiceImpl implements OrderService {
         order.setStatus(0);
         order.setShipAddress(orderDTO.getShipAddress());
         order.setUser(new User().setUserId(orderDTO.getUserId()));
-        return OrderMapper.MAPPER.from(orderRepository.save(order));
+        return orderRepository.save(order).getOrderId();
     }
 }
