@@ -1,8 +1,7 @@
 package com.khanhdpdx.webapishoplaptop.dto;
 
+import com.khanhdpdx.webapishoplaptop.dto.laptop.LaptopDTO;
 import lombok.*;
-
-import java.util.List;
 
 @Getter
 @Setter

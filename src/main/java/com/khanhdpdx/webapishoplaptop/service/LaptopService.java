@@ -1,12 +1,13 @@
 package com.khanhdpdx.webapishoplaptop.service;
 
-import com.khanhdpdx.webapishoplaptop.dto.LaptopDTO;
-import com.khanhdpdx.webapishoplaptop.entity.Laptop;
+import com.khanhdpdx.webapishoplaptop.dto.laptop.LaptopDTO;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface LaptopService {
     List<LaptopDTO> findAll();
     LaptopDTO findById(Long id);
+    Long save(LaptopDTO laptopDTO);
+    Page<LaptopDTO> listByPaged(String keyword, int page, int size, String[] sort);
 }

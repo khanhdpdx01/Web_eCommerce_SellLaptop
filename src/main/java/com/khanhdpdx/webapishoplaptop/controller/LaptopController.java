@@ -1,18 +1,25 @@
 package com.khanhdpdx.webapishoplaptop.controller;
 
-import com.khanhdpdx.webapishoplaptop.dto.LaptopDTO;
+import com.khanhdpdx.webapishoplaptop.dto.laptop.LaptopDTO;
 import com.khanhdpdx.webapishoplaptop.dto.OrderDetailDTO;
 import com.khanhdpdx.webapishoplaptop.dto.ShoppingCartDTO;
+import com.khanhdpdx.webapishoplaptop.repository.LaptopRepository;
 import com.khanhdpdx.webapishoplaptop.service.LaptopService;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static com.khanhdpdx.webapishoplaptop.constant.PaginationConstant.ITEM_PER_PAGE;
 
 @Controller
 @RequestMapping("/product")
@@ -23,6 +30,12 @@ public class LaptopController {
 
     @Autowired
     private ShoppingCartDTO shoppingCartDTO;
+
+    @Autowired
+    private LaptopRepository laptopRepository;
+
+    @Autowired
+    private ModelMapper modelMapper;
 
     @GetMapping
     public String list(/*@ModelAttribute("cart") List<ShoppingCartDTO> cart,*/
@@ -123,8 +136,17 @@ public class LaptopController {
         return laptopService.findAll();
     }
 
-
-
+    @GetMapping("/test")
+    @ResponseBody
+    public Page<LaptopDTO> listByPaged(@RequestParam(required = false) Optional<String> keyword,
+                                       @RequestParam(required = false) Optional<Integer> page,
+                                       @RequestParam(required = false) Optional<Integer> size,
+                                       @RequestParam(required = false, defaultValue = "laptopId,desc") String[] sortBy) {
+        return laptopService.listByPaged(keyword.orElse(""),
+                page.orElse(0),
+                size.orElse(ITEM_PER_PAGE),
+                sortBy);
+    }
     // cal sum money
     // payment -> order -> order details
 }
