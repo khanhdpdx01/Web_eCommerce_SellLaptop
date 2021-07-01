@@ -1,0 +1,10 @@
+parameters:
+  - in: body
+    description: ""
+    required: true
+    name: name
+    schema:
+      type: array
+      items:
+        type: string
+      example: ["str1", "str2", "str3"]

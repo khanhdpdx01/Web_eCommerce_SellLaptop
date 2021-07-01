@@ -6,7 +6,7 @@
 </head>
 <body>
 <div class="main-content">
-    <h3>Login to continue</h3>
+    <h3>Login</h3>
     <form th:action="@{/authenticate}" th:object="${jwtRequest}" method="POST">
         <input type="text" th:field="*{username}" name="username" placeholder="Your username"/><br />
         <input type="password" th:field="*{password}" name="password" placeholder="Your password" /><br />
