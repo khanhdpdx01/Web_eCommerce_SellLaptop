@@ -1,15 +1,17 @@
 package com.khanhdpdx.webapishoplaptop.controller;
 
-import com.khanhdpdx.webapishoplaptop.dto.laptop.LaptopDTO;
 import com.khanhdpdx.webapishoplaptop.dto.OrderDetailDTO;
 import com.khanhdpdx.webapishoplaptop.dto.ShoppingCartDTO;
+import com.khanhdpdx.webapishoplaptop.dto.laptop.LaptopDTO;
 import com.khanhdpdx.webapishoplaptop.repository.LaptopRepository;
 import com.khanhdpdx.webapishoplaptop.service.LaptopService;
+import com.khanhdpdx.webapishoplaptop.utils.PageInfo;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.querydsl.QPageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static com.khanhdpdx.webapishoplaptop.constant.PaginationConstant.ITEM_PER_PAGE;
 
@@ -31,18 +32,26 @@ public class LaptopController {
     @Autowired
     private ShoppingCartDTO shoppingCartDTO;
 
-    @Autowired
-    private LaptopRepository laptopRepository;
-
-    @Autowired
-    private ModelMapper modelMapper;
-
     @GetMapping
     public String list(/*@ModelAttribute("cart") List<ShoppingCartDTO> cart,*/
             Model model,
+            @RequestParam(required = false) Optional<String> keyword,
+            @RequestParam(required = false) Optional<Integer> page,
+            @RequestParam(required = false) Optional<Integer> size,
+            @RequestParam(required = false, defaultValue = "laptopId,desc") String[] sortBy,
             HttpServletRequest request) {
         List<OrderDetailDTO> cart = shoppingCartDTO.getShoppingCart(request);
-        model.addAttribute("products", laptopService.findAll());
+        Page<LaptopDTO> pages = laptopService.listByPaged(keyword.orElse(""),
+                page.orElse(0),
+                size.orElse(ITEM_PER_PAGE),
+                sortBy);
+        PageInfo pageInfo = new PageInfo()
+                .setMaxPageItem(pages.getSize())
+                .setPage(pages.getNumber() + 1)
+                .setTotalPage(pages.getTotalPages())
+                .setTotalItem(pages.getTotalElements());
+        model.addAttribute("products", pages.getContent());
+        model.addAttribute("pageInfo",pageInfo);
         model.addAttribute("cart", cart);
         model.addAttribute("message", model.asMap().get("message"));
         return "client/product/list";
@@ -63,12 +72,12 @@ public class LaptopController {
     @GetMapping("/cart/{laptop-id}")
     @ResponseBody
     public List<OrderDetailDTO> addToCart(/*@ModelAttribute("cart") List<ShoppingCartDTO> cart,*/
-                                           @PathVariable("laptop-id") Long id,
-                                           HttpServletRequest request) {
+            @PathVariable("laptop-id") Long id,
+            HttpServletRequest request) {
         List<OrderDetailDTO> cart = shoppingCartDTO.getShoppingCart(request);
         boolean existedLaptop = false;
         for (OrderDetailDTO item : cart) {
-            if (item.getLaptop().getLaptopId() == id) {
+            if (item.getLaptop().getLaptopId().equals(id)) {
                 existedLaptop = true;
                 item.setQuantity(item.getQuantity() + 1);
                 item.setUnitPrice(item.getUnitPrice() + item.getLaptop().getUnitPrice());
@@ -99,12 +108,12 @@ public class LaptopController {
     @PostMapping("/cart/{laptop-id}")
     @ResponseBody
     public List<OrderDetailDTO> updateCart(/*@ModelAttribute("cart") List<ShoppingCartDTO> cart,*/
-                                            @PathVariable("laptop-id") Long id, Integer quantity,
-                                            HttpServletRequest request) {
+            @PathVariable("laptop-id") Long id, Integer quantity,
+            HttpServletRequest request) {
         List<OrderDetailDTO> cart = shoppingCartDTO.getShoppingCart(request);
         if (quantity > 0) {
             for (OrderDetailDTO item : cart) {
-                if (item.getLaptop().getLaptopId() == id) {
+                if (item.getLaptop().getLaptopId().equals(id)) {
                     item.setQuantity(quantity);
                     item.setUnitPrice(item.getLaptop().getUnitPrice() * quantity);
                     break;
@@ -117,12 +126,13 @@ public class LaptopController {
     @DeleteMapping("/cart/{laptop-id}")
     @ResponseBody
     public List<OrderDetailDTO> deleteCart(/*@ModelAttribute("cart") List<ShoppingCartDTO> cart,*/
-                                            @PathVariable("laptop-id") Long id,
-                                            HttpServletRequest request) {
+            @PathVariable("laptop-id") Long id,
+            HttpServletRequest request) {
         List<OrderDetailDTO> cart = shoppingCartDTO.getShoppingCart(request);
         int size = cart.size();
         for (int i = 0; i < size; ++i) {
-            if (cart.get(i).getLaptop().getLaptopId() == id) {
+            // not permit using == to compare 2 Long object
+            if (cart.get(i).getLaptop().getLaptopId().equals(id)) {
                 cart.remove(i);
                 break;
             }
@@ -149,4 +159,11 @@ public class LaptopController {
     }
     // cal sum money
     // payment -> order -> order details
+
+    public static void main(String[] args) {
+        Long a = 1L;
+        Long b = 1L;
+        if(a == b) System.out.println("T");
+    }
+
 }

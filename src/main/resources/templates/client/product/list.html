@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Title</title>
     <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/pagination.min.css}">
     <link rel="stylesheet" th:href="@{/css/list.css}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
 </head>
@@ -15,6 +16,8 @@
     </button>
 
     <a th:href="@{/logout}">Logout</a>
+    <input type="text" class="input-search">
+    <button type="button" onclick="search()">Search</button>
 </nav>
 
 <th:block th:if="${message}">
@@ -28,12 +31,12 @@
 
 <th:block th:unless="${#lists.isEmpty(products)}">
     <div class="container-fluid">
-        <div class="row d-flex justify-content-around">
-            <div class="card col-lg-4" style="width: 18rem;" th:each="item: ${products}">
+        <div class="row d-flex justify-content-start">
+            <div class="card col-lg-4" th:each="item: ${products}">
                 <img alt="Card image cap" class="card-img-top" src="#">
                 <div class="card-body">
                     <h5 class="card-title" th:text="${item.name}"></h5>
-                    <p class="card-text" th:text="${item.description}"></p>
+<!--                    <p class="card-text" th:text="${item.description}"></p>-->
                     <a class="add-to-cart btn btn-primary"
                        th:href="@{/product/cart/{laptop-id}(laptop-id=${item.laptopId})}">Add to cart</a>
                 </div>
@@ -41,6 +44,11 @@
         </div>
     </div>
 </th:block>
+
+<div class="box">
+    <ul id="pagination" class="pagination"></ul>
+    <div class="show"></div>
+</div>
 
 <div aria-hidden="true" aria-labelledby="exampleModalLabel" class="modal fade" id="cart" tabindex="-1">
     <div class="modal-dialog modal-lg" role="document">
@@ -102,9 +110,9 @@
 <script th:src="@{/js/bootstrap.min.js}"></script>
 <script th:src="@{/js/popper.min.js}"></script>
 <script th:src="@{/js/fontawesome.min.js}"></script>
+<script th:src="@{/js/pagination.min.js}"></script>
 <script type="text/javascript">
     $(document).ready(function () {
-
         $(document).on('click', '.add-to-cart', function (event) {
             event.preventDefault();
             let url = $(this).attr('href')
@@ -121,7 +129,7 @@
                     if(error.status == 401) {
                         location.href = "/login";
                     }
-                    
+
                 }
             })
         });
@@ -166,6 +174,24 @@
         $(document).on('click', '.btn-close-message', function () {
             $(".alert").alert('close');
         })
+
+        $('#pagination').pagination({
+            total: [[${pageInfo.totalItem}]],
+            current: [[${pageInfo.page}]],
+            length: [[${pageInfo.maxPageItem}]],
+            size: 2,
+
+            click: function(options,$target) {
+                let searchParams = new URLSearchParams(window.location.search);
+
+                if(searchParams.has('keyword')) {
+                    let keyword = searchParams.get('keyword')
+                    window.location.href = `/product?keyword=${keyword}&page=${options.current}` ;
+                }
+                else
+                    window.location.href = `/product?page=${options.current}` ;
+            }
+        });
 
     });
 
@@ -216,6 +242,13 @@
             $('.btn-order').remove();
         }
     }
+
+    function search() {
+        let keyword = $('.input-search').val();
+        location.href = '/product?keyword=' + keyword;
+    }
 </script>
+
+<!--th:inline="javascript"-->
 </body>
 </html>
