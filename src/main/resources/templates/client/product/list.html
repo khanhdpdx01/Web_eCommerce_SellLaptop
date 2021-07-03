@@ -29,27 +29,46 @@
     </div>
 </th:block>
 
-<th:block th:unless="${#lists.isEmpty(products)}">
+<div class="body">
     <div class="container-fluid">
-        <div class="row d-flex justify-content-start">
-            <div class="card col-lg-4" th:each="item: ${products}">
-                <img alt="Card image cap" class="card-img-top" src="#">
-                <div class="card-body">
-                    <h5 class="card-title" th:text="${item.name}"></h5>
-<!--                    <p class="card-text" th:text="${item.description}"></p>-->
-                    <a class="add-to-cart btn btn-primary"
-                       th:href="@{/product/cart/{laptop-id}(laptop-id=${item.laptopId})}">Add to cart</a>
-                </div>
+        <div class="row">
+            <div class="col-lg-2"> <!--filter to category-->
+                <ul class="navbar-nav align-self-stretch">
+                    <li th:each="item : ${categories}">
+                        <a class="nav-link text-left active" role="button" th:data-id="${item.categoryId}">
+                            <span class="px-2" th:text="${item.categoryName}"></span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-lg-10"> <!--list product-->
+                <th:block th:unless="${#lists.isEmpty(products)}">
+                    <div class="container-fluid">
+                        <div class="row d-flex justify-content-start product-list">
+                            <div class="card col-lg-4" th:each="item: ${products}">
+                                <img alt="Card image cap" class="card-img-top" src="#">
+                                <div class="card-body">
+                                    <h5 class="card-title" th:text="${item.name}"></h5>
+                                    <!--                    <p class="card-text" th:text="${item.description}"></p>-->
+                                    <a class="add-to-cart btn btn-primary"
+                                       th:href="@{/product/cart/{laptop-id}(laptop-id=${item.laptopId})}">Add to cart</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </th:block>
             </div>
         </div>
     </div>
-</th:block>
+</div>
 
+<!--Pagination-->
 <div class="box">
     <ul id="pagination" class="pagination"></ul>
     <div class="show"></div>
 </div>
 
+<!--Shopping cart-->
 <div aria-hidden="true" aria-labelledby="exampleModalLabel" class="modal fade" id="cart" tabindex="-1">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
@@ -167,6 +186,38 @@
             })
         });
 
+        // when user clicks to category link
+        $(document).on('click','.nav-link', function() {
+            let id = $(this).data('id')
+            // call api
+            $.ajax({
+                type: 'GET',
+                url: `/product/categories/${id}`,
+                dataType: 'json',
+                success: (response) => {
+                    loadProducts(response)
+
+                    $('#pagination').pagination({
+                        total: response["totalElements"],
+                        current: response["number"] + 1,
+                        length: response["size"],
+                        size: 2,
+
+                        click: function(options,$target,event) {
+                            $.ajax({
+                                type: 'GET',
+                                url: `product/categories/${id}?page=${options.current}`,
+                                dataType: 'json',
+                                success: (response) => {
+                                    loadProducts(response)
+                                }
+                            })
+                        }
+                    })
+                }
+            })
+        })
+
         $(".close-modal").on('click', function () {
             $('#cart').modal('hide');
         })
@@ -182,6 +233,7 @@
             size: 2,
 
             click: function(options,$target) {
+
                 let searchParams = new URLSearchParams(window.location.search);
 
                 if(searchParams.has('keyword')) {
@@ -243,6 +295,28 @@
         }
     }
 
+    const loadProducts = function (response) {
+        const products = response["content"]
+        let str = "";
+
+        // clear html dom
+        $('.product-list').empty()
+
+        $.each(products, function (key, value) {
+            str += `<div class="card col-lg-4">
+                                    <img alt="Card image cap" class="card-img-top" src="#">
+                                        <div class="card-body">
+                                                <h5 class="card-title"">${value["name"]}</h5>
+                                                <a class="add-to-cart btn btn-primary"
+                                                   href="/product/cart/${value["laptopId"]}">Add to cart</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>`;
+        })
+        $('.product-list').html(str);
+    }
+
     function search() {
         let keyword = $('.input-search').val();
         location.href = '/product?keyword=' + keyword;
@@ -250,5 +324,6 @@
 </script>
 
 <!--th:inline="javascript"-->
+
 </body>
 </html>

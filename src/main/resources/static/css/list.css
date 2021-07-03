@@ -16,3 +16,7 @@
     position: absolute;
     padding: 0px 7px;
 }
+
+.nav-link {
+    cursor: pointer;
+}

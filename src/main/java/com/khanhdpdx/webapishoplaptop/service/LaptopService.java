@@ -10,4 +10,5 @@ public interface LaptopService {
     LaptopDTO findById(Long id);
     Long save(LaptopDTO laptopDTO);
     Page<LaptopDTO> listByPaged(String keyword, int page, int size, String[] sort);
+    Page<LaptopDTO> getLaptopsByCategory(Long categoryId, int page, int size, String[] sort);
 }

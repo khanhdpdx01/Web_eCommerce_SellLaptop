@@ -1,8 +1,7 @@
 package com.khanhdpdx.webapishoplaptop.dto.laptop;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.khanhdpdx.webapishoplaptop.dto.CategoryDTO;
-import com.khanhdpdx.webapishoplaptop.entity.Category;
+import com.khanhdpdx.webapishoplaptop.dto.category.CategoryDTO;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

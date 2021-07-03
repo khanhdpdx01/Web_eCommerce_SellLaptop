@@ -1,6 +1,5 @@
 package com.khanhdpdx.webapishoplaptop.service.impl;
 
-import com.khanhdpdx.webapishoplaptop.constant.PaginationConstant;
 import com.khanhdpdx.webapishoplaptop.dto.laptop.LaptopDTO;
 import com.khanhdpdx.webapishoplaptop.dto.laptop.LaptopMapper;
 import com.khanhdpdx.webapishoplaptop.entity.Category;
@@ -39,7 +38,7 @@ public class LaptopServiceImpl implements LaptopService {
     @Override
     public LaptopDTO findById(Long id) {
         Optional<Laptop> laptop = laptopRepository.findById(id);
-        if(laptop.isPresent()) return modelMapper.map(laptop.get(), LaptopDTO.class);
+        if (laptop.isPresent()) return modelMapper.map(laptop.get(), LaptopDTO.class);
         return null;
     }
 
@@ -57,14 +56,14 @@ public class LaptopServiceImpl implements LaptopService {
     }
 
     public Page<LaptopDTO> listByPaged(String keyword, int page, int size, String[] sort) {
-        if(page <= 0) page = 1;
-        if(size <= 0) size = ITEM_PER_PAGE;
+        if (page <= 0) page = 1;
+        if (size <= 0) size = ITEM_PER_PAGE;
 
         Sort sortIter = PagingAndSortingUtil.processSort(sort);
-        Pageable pageable = PageRequest.of(page -1, size, sortIter);
+        Pageable pageable = PageRequest.of(page - 1, size, sortIter);
 
         Page<Laptop> laptops;
-        if(keyword.isEmpty()) {
+        if (keyword.isEmpty()) {
             laptops = laptopRepository.findAll(pageable);
         } else {
             laptops = laptopRepository.search(keyword, pageable);
@@ -74,4 +73,15 @@ public class LaptopServiceImpl implements LaptopService {
         return new PageImpl<>(laptopDTOs, pageable, laptops.getTotalElements());
     }
 
+    public Page<LaptopDTO> getLaptopsByCategory(Long categoryId, int page, int size, String[] sort) {
+        if (page <= 0) page = 1;
+        if (size <= 0) size = ITEM_PER_PAGE;
+
+        Sort sortIter = PagingAndSortingUtil.processSort(sort);
+        Pageable pageable = PageRequest.of(page - 1, size, sortIter);
+        Page<Laptop> laptops = laptopRepository.getLaptopsByCategoryId(categoryId,pageable);
+
+        List<LaptopDTO> laptopDTOs = LaptopMapper.MAPPER.fromLaptops(laptops.getContent());
+        return new PageImpl<>(laptopDTOs, pageable, laptops.getTotalElements());
+    }
 }

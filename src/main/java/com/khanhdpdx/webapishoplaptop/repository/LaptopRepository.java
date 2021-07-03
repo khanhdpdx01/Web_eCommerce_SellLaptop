@@ -10,5 +10,8 @@ import org.springframework.stereotype.Repository;
 
 public interface LaptopRepository extends JpaRepository<Laptop, Long> {
     @Query("SELECT l FROM Laptop l WHERE l.name LIKE %?1%")
-    public Page<Laptop> search(String keyword, Pageable pageable);
+    Page<Laptop> search(String keyword, Pageable pageable);
+
+    @Query("SELECT l FROM Laptop l WHERE l.category.categoryId = ?1")
+    Page<Laptop> getLaptopsByCategoryId(Long categoryId, Pageable pageable);
 }
