@@ -66,5 +66,10 @@ public class UserController {
         redirectAttributes.addFlashAttribute("message", "Đăng kí tài khoản thành công");
         return "redirect:/product";
     }
+
+    @GetMapping("/statistic")
+    public String statistic() {
+        return "statistic_covid";
+    }
 }
 
