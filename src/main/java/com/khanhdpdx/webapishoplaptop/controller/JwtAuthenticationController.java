@@ -6,6 +6,8 @@ import com.khanhdpdx.webapishoplaptop.security.JwtRequest;
 import com.khanhdpdx.webapishoplaptop.security.JwtResponse;
 import com.khanhdpdx.webapishoplaptop.security.JwtTokenUtil;
 import com.khanhdpdx.webapishoplaptop.security.UserDetailsServiceImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -24,7 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 @RestController
 @CrossOrigin
 public class JwtAuthenticationController {
-
+    private static Logger logger = LoggerFactory.getLogger(ControllerAdvice.class);
     @Autowired
     private AuthenticationManager authenticationManager;
 
@@ -33,7 +35,6 @@ public class JwtAuthenticationController {
 
     @Autowired
     private UserDetailsServiceImpl userDetailsService;
-
     @RequestMapping(value = "/authenticate", method = RequestMethod.POST)
     public ResponseEntity<?> createAuthenticationToken(@ModelAttribute JwtRequest authenticationRequest,
                                                         HttpServletResponse response, HttpServletRequest request) throws Exception {
@@ -55,6 +56,7 @@ public class JwtAuthenticationController {
         String url = (String)request.getSession().getAttribute("url_prior_login");
         response.sendRedirect(url);
 
+        logger.info(userDetails.getUsername() + " login success");
         return ResponseEntity.ok(new JwtResponse(token));
     }
 

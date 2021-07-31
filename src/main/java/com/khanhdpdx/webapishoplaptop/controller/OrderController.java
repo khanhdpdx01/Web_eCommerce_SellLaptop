@@ -8,6 +8,8 @@ import com.khanhdpdx.webapishoplaptop.dto.shipper.ShipperDTO;
 import com.khanhdpdx.webapishoplaptop.entity.Payment;
 import com.khanhdpdx.webapishoplaptop.security.UserDetailsServiceImpl;
 import com.khanhdpdx.webapishoplaptop.service.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +27,7 @@ import java.util.List;
 
 @Controller
 public class OrderController {
+    private static Logger logger = LoggerFactory.getLogger(ControllerAdvice.class);
     @Autowired
     private OrderService orderService;
 
