@@ -191,7 +191,7 @@ public class LaptopController {
     }
 
     @PostMapping
-    /*@PreAuthorize("hasRole('ADMIN')")*/
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> createLaptop(@RequestParam MultipartFile file) {
         String fileName = file.getOriginalFilename();
         try {
