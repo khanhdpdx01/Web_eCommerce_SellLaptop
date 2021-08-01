@@ -4,6 +4,7 @@ import com.khanhdpdx.webapishoplaptop.dto.user.UserDTO;
 import com.khanhdpdx.webapishoplaptop.security.JwtRequest;
 import com.khanhdpdx.webapishoplaptop.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -68,6 +69,7 @@ public class UserController {
     }
 
     @GetMapping("/statistic")
+    @PreAuthorize("hasRole('ADMIN')")
     public String statistic() {
         return "statistic_covid";
     }

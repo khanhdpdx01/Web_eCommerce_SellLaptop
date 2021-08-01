@@ -8,14 +8,23 @@ import com.khanhdpdx.webapishoplaptop.service.LaptopService;
 import com.khanhdpdx.webapishoplaptop.utils.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import static com.khanhdpdx.webapishoplaptop.constant.ApplicationConstant.UPLOAD_DIR;
 import static com.khanhdpdx.webapishoplaptop.constant.PaginationConstant.ITEM_PER_PAGE;
 
 @Controller
@@ -45,11 +54,13 @@ public class LaptopController {
             @RequestParam(required = false) Optional<Integer> size,
             @RequestParam(required = false, defaultValue = "laptopId,desc") String[] sortBy,
             HttpServletRequest request) {
+        Date before = new Date();
         List<OrderDetailDTO> cart = shoppingCartDTO.getShoppingCart(request);
         Page<LaptopDTO> pages = laptopService.listByPaged(keyword.orElse(""),
                 page.orElse(0),
                 size.orElse(ITEM_PER_PAGE),
                 sortBy);
+        System.out.println(new Date().getTime() - before.getTime());
         PageInfo pageInfo = new PageInfo()
                 .setMaxPageItem(pages.getSize())
                 .setPage(pages.getNumber() + 1)
@@ -179,4 +190,15 @@ public class LaptopController {
                 sortBy);
     }
 
+    @PostMapping
+    /*@PreAuthorize("hasRole('ADMIN')")*/
+    public ResponseEntity<?> createLaptop(@RequestParam MultipartFile file) {
+        String fileName = file.getOriginalFilename();
+        try {
+            FileCopyUtils.copy(file.getBytes(), new File(UPLOAD_DIR + fileName));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return ResponseEntity.ok(UPLOAD_DIR + fileName);
+    }
 }

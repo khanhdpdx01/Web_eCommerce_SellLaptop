@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -36,8 +38,9 @@ public class Laptop {
     @Column(nullable = false)
     private Integer status;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
+    @Fetch(FetchMode.JOIN)
     private Category category;
     /*@Column(name = "category_id")
     private Long categoryId;*/
