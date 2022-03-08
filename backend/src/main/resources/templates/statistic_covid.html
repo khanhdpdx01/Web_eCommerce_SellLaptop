@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Login Page</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="main-content">
+    <h1>Statistic covid 19</h1>
+    <canvas id="myChart"></canvas>
+</div>
+
+<script th:src="@{/js/jquery.min.js}"></script>
+<script th:src="@{/js/bootstrap.min.js}"></script>
+<script th:src="@{/js/popper.min.js}"></script>
+<script th:src="@{/js/fontawesome.min.js}"></script>
+<script th:src="@{/js/chart.min.js}"></script>
+<script>
+    $(document).ready(function () {
+        let url = 'https://vaccovid-coronavirus-vaccine-and-treatment-tracker.p.rapidapi.com/api/covid-ovid-data/sixmonth/USA';
+        const total_cases = [];
+        const new_cases = [];
+        const labels = [];
+        $.ajax({
+            type: 'GET',
+            url: `${url}`,
+            headers: {
+                'x-rapidapi-key': 'e5dcc3fcd9msh5c3bc408365753bp1ade43jsn6d35029d42cf',
+                'x-rapidapi-host': 'vaccovid-coronavirus-vaccine-and-treatment-tracker.p.rapidapi.com'
+            },
+            dataType: 'json',
+            success: (response) => {
+                const data = response;
+                $.each(data, function (key, value) {
+                    total_cases.push(value["total_cases"]);
+                    new_cases.push(value["new_cases"]);
+                    labels.push(value["date"]);
+                })
+
+                drawChart(total_cases, labels, new_cases)
+            }
+        })
+
+
+    })
+
+    const drawChart = (total_cases, labels, new_case) => {
+        const data = {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'total_cases',
+                    data: total_cases,
+                    backgroundColor: 'rgb(255, 99, 132)',
+                    borderColor: 'rgb(255, 99, 132)'
+                },
+                {
+                    label: 'new_case',
+                    data: new_case,
+                    backgroundColor: 'rgb(255, 99, 132)',
+                    borderColor: 'rgb(255, 99, 132)'
+                }
+            ]
+        };
+
+        const config = {
+            type: 'line',
+            data,
+            options: {}
+        };
+
+        const ctx = document.getElementById('myChart').getContext('2d');
+        const myChart = new Chart(
+            ctx,
+            config
+        );
+    }
+</script>
+
+</body>
+</html>

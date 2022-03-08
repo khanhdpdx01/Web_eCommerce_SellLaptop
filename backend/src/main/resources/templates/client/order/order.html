@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Login Page</title>
+</head>
+<body>
+<div class="main-content">
+    <h3>Login to continue</h3>
+    <form th:action="@{/order}" th:object="${order}" method="POST">
+        <input type="text" th:field="*{username}" name="username" placeholder="Họ và tên người nhận"/>
+        <p th:if="${#fields.hasErrors('username')}" th:errors="*{username}" /><br />
+        <input type="text" th:field="*{shipAddress}" name="shipAddress" placeholder="Địa chỉ giao hàng" />
+        <p th:if="${#fields.hasErrors('shipAddress')}" th:errors="*{shipAddress}" /><br />
+        <select type="text" th:field="*{shipperId}" name="shipperId" placeholder="Đơn vị giao hàng" >
+            <option th:each="item : ${shipper}" th:value="${item.shipperId}" th:text="${item.companyName}"></option>
+        </select>
+        <p th:if="${#fields.hasErrors('shipperId')}" th:errors="*{shipperId}" /><br />
+        <select type="text" th:field="*{paymentId}" name="paymentId" placeholder="Phương thức thanh toán" >
+            <option th:each="item : ${payment}" th:value="${item.paymentId}" th:text="${item.paymentName}"></option>
+        </select>
+        <p th:if="${#fields.hasErrors('paymentId')}" th:errors="*{paymentId}" /><br />
+        <input type="text" th:field="*{freightCost}" name="freightCost" placeholder="Phí vận chuyển" />
+        <p th:if="${#fields.hasErrors('freightCost')}" th:errors="*{freightCost}" /><br />
+        <button type="submit">Login</button> <br />
+    </form>
+</div>
+</body>
+</html>

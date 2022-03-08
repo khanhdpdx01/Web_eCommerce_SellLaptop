@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/pagination.min.css}">
+    <link rel="stylesheet" th:href="@{/css/list.css}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+<nav class="navbar navbar-dark bg-primary">
+    <button class="shopping-cart" data-target="#cart" data-toggle="modal" type="button">
+        <i aria-hidden="true" class="fa fa-shopping-cart" style=""></i>
+        <span class="item-amount">0</span>
+    </button>
+
+    <a th:href="@{/logout}">Logout</a>
+    <input type="text" class="input-search">
+    <button type="button" onclick="search()">Search</button>
+</nav>
+
+<th:block th:if="${message}">
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        <strong th:text="${message}"></strong>
+        <button type="button" class="btn-close-message close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+</th:block>
+
+<div class="body">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-2"> <!--filter to category-->
+                <ul class="navbar-nav align-self-stretch">
+                    <li th:each="item : ${categories}">
+                        <a class="nav-link text-left active" role="button" th:data-id="${item.categoryId}">
+                            <span class="px-2" th:text="${item.categoryName}"></span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-lg-10"> <!--list product-->
+                <th:block th:unless="${#lists.isEmpty(products)}">
+                    <div class="container-fluid">
+                        <div class="row d-flex justify-content-start product-list">
+                            <div class="card col-lg-4" th:each="item: ${products}">
+                                <img alt="Card image cap" class="card-img-top" th:src="${item.linkImage}">
+                                <div class="card-body">
+                                    <h5 class="card-title" th:text="${item.name}"></h5>
+                                    <!--                    <p class="card-text" th:text="${item.description}"></p>-->
+                                    <a class="add-to-cart btn btn-primary"
+                                       th:href="@{/product/cart/{laptop-id}(laptop-id=${item.laptopId})}">Add to cart</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </th:block>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Pagination-->
+<div class="box">
+    <ul id="pagination" class="pagination"></ul>
+    <div class="show"></div>
+</div>
+
+<!--Shopping cart-->
+<div aria-hidden="true" aria-labelledby="exampleModalLabel" class="modal fade" id="cart" tabindex="-1">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Cart</h5>
+                <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+                    <span aria-hidden="true" class="close-modal">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <th:block th:unless="${#lists.isEmpty(cart)}">
+                    <table class="table">
+                        <tr>
+                            <th>#</th>
+                            <th>Sản phẩm</th>
+                            <th>Giá</th>
+                            <th>Số lượng</th>
+                            <th>Thành tiền</th>
+                            <th></th>
+                        </tr>
+                        <tr th:each="item, state: ${cart}">
+                            <td th:text="${state.count}"></td>
+                            <td th:text="${item.laptop.name}"></td>
+                            <td th:text="${item.laptop.unitPrice.longValue()}"></td>
+                            <td><input class="update-item" min="1" th:data-id="${item.laptop.laptopId}"
+                                       th:value="${item.quantity}" type="number"/></td>
+                            <td th:text="${item.unitPrice.longValue()}"></td>
+                            <td>
+                                <a class="btn btn-danger btn-remove-item"
+                                   th:href="@{/product/cart/{laptop-id}(laptop-id=${item.laptop.laptopId})}">Xóa</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-right" colspan="4">Tổng tiền</td>
+                            <td th:text="${#aggregates.sum(cart.![unitPrice])}"></td>
+                            <td></td>
+                        </tr>
+                    </table>
+
+
+                </th:block>
+
+                <th:block th:if="${#lists.isEmpty(cart)}">
+                    <h3>KHÔNG CÓ SẢN PHẨM</h3>
+                </th:block>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary close-modal" data-dismiss="modal" type="button">Close</button>
+                <th:block th:unless="${#lists.isEmpty(cart)}">
+                    <a class="btn btn-success btn-order" th:href="@{/order}">Order now</a>
+                </th:block>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/js/jquery.min.js}"></script>
+<script th:src="@{/js/bootstrap.min.js}"></script>
+<script th:src="@{/js/popper.min.js}"></script>
+<script th:src="@{/js/fontawesome.min.js}"></script>
+<script th:src="@{/js/pagination.min.js}"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $(document).on('click', '.add-to-cart', function (event) {
+            event.preventDefault();
+            let url = $(this).attr('href')
+
+            $.ajax({
+                type: 'GET',
+                url: `${url}`,
+                dataType: 'json',
+                success: (response) => {
+                    const cart = response;
+                    loadCart(cart)
+                },
+                error: function (error) {
+                    if(error.status == 401) {
+                        location.href = "/login";
+                    }
+
+                }
+            })
+        });
+
+        $(document).on('click', '.btn-remove-item', function (event) {
+            event.preventDefault();
+            let url = $(this).attr('href')
+
+            $.ajax({
+                type: 'DELETE',
+                url: `${url}`,
+                dataType: 'json',
+                success: (response) => {
+                    const cart = response
+                    loadCart(cart)
+                }
+            })
+            return false;
+        });
+
+        $(document).on('change', '.update-item', function (event) {
+            let id = $(this).data('id')
+            let quantity = $(this).val();
+
+            console.log(id + quantity);
+            $.ajax({
+                type: 'POST',
+                url: `/product/cart/${id}`,
+                data: {quantity: quantity},
+                dataType: 'json',
+                success: (response) => {
+                    const cart = response;
+                    loadCart(cart)
+                }
+            })
+        });
+
+        // when user clicks to category link
+        $(document).on('click','.nav-link', function() {
+            let id = $(this).data('id')
+            // call api
+            $.ajax({
+                type: 'GET',
+                url: `/product/categories/${id}`,
+                dataType: 'json',
+                success: (response) => {
+                    loadProducts(response)
+
+                    $('#pagination').pagination({
+                        total: response["totalElements"],
+                        current: response["number"] + 1,
+                        length: response["size"],
+                        size: 2,
+
+                        click: function(options,$target,event) {
+                            $.ajax({
+                                type: 'GET',
+                                url: `product/categories/${id}?page=${options.current}`,
+                                dataType: 'json',
+                                success: (response) => {
+                                    loadProducts(response)
+                                }
+                            })
+                        }
+                    })
+                }
+            })
+        })
+
+        $(".close-modal").on('click', function () {
+            $('#cart').modal('hide');
+        })
+
+        $(document).on('click', '.btn-close-message', function () {
+            $(".alert").alert('close');
+        })
+
+        $('#pagination').pagination({
+            total: [[${pageInfo.totalItem}]],
+            current: [[${pageInfo.page}]],
+            length: [[${pageInfo.maxPageItem}]],
+            size: 2,
+
+            click: function(options,$target) {
+
+                let searchParams = new URLSearchParams(window.location.search);
+
+                if(searchParams.has('keyword')) {
+                    let keyword = searchParams.get('keyword')
+                    window.location.href = `/product?keyword=${keyword}&page=${options.current}` ;
+                }
+                else
+                    window.location.href = `/product?page=${options.current}` ;
+            }
+        });
+
+    });
+
+    const loadCart = function (cart) {
+        let str = "";
+        let totalPrice = 0;
+
+        $('.modal-body').empty();
+        $('.btn-order').remove();
+
+        if (cart.length > 0) {
+            $.each(cart, function (key, value) {
+                totalPrice += value["unitPrice"];
+                str += `<tr>
+                        <td>${key + 1}</td>
+                        <td>${value["laptop"]["name"]}</td>
+                        <td>${value["laptop"]["unitPrice"]}</td>
+                        <td><input type="number" value="${value["quantity"]}" min="1"
+                            class="update-item" data-id="${value["laptop"]["laptopId"]}"/></td>
+                        <td>${value["unitPrice"]}</td>
+                        <td>
+                            <a class="btn btn-danger btn-remove-item"
+                            href="/product/cart/${value["laptop"]["laptopId"]}">Xóa</a>
+                        </td>
+                    </tr>`
+            })
+            str += `<tr>
+                    <td colspan="4" class="text-right">Tổng tiền</td>
+                    <td>${totalPrice}</td>
+                    <td></td>
+                </tr>`
+            $('.modal-body').html(`
+                    <table class="table">
+                        <tr>
+                            <th>#</th>
+                            <th>Sản phẩm</th>
+                            <th>Giá</th>
+                            <th>Số lượng</th>
+                            <th>Thành tiền</th>
+                            <th></th>
+                        </tr>
+                        ${str}
+                    </table>`);
+
+            $('.modal-footer').append('<a class="btn btn-success btn-order" href="/order">Order now</a>')
+        } else {
+            $('.modal-body').html(`<h3>KHÔNG CÓ SẢN PHẨM</h3>`);
+            $('.btn-order').remove();
+        }
+    }
+
+    const loadProducts = function (response) {
+        const products = response["content"]
+        let str = "";
+
+        // clear html dom
+        $('.product-list').empty()
+
+        $.each(products, function (key, value) {
+            str += `<div class="card col-lg-4">
+                                    <img alt="Card image cap" class="card-img-top" src="#">
+                                        <div class="card-body">
+                                                <h5 class="card-title"">${value["name"]}</h5>
+                                                <a class="add-to-cart btn btn-primary"
+                                                   href="/product/cart/${value["laptopId"]}">Add to cart</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>`;
+        })
+        $('.product-list').html(str);
+    }
+
+    function search() {
+        let keyword = $('.input-search').val();
+        location.href = '/product?keyword=' + keyword;
+    }
+</script>
+
+<!--th:inline="javascript"-->
+
+</body>
+</html>
