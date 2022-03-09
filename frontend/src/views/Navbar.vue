@@ -4,8 +4,14 @@
       <div class="logo-menu">
         <img class="logo" :src="require('../assets/images/logo.png')" alt="" />
         <div class="search-area">
-          <input class="input-search" type="text" name="" id="" />
-          <button class="btn-search">
+          <input
+            v-model="searchText"
+            class="input-search"
+            type="text"
+            name=""
+            placeholder="Tìm sản phẩm bạn muốn"
+          />
+          <button class="btn-search" @click="searchProduct()">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               x="0px"
@@ -25,11 +31,15 @@
       </div>
       <div class="personal-area">
         <div class="personal-area__img">
-          <img src="https://img.icons8.com/external-bearicons-glyph-bearicons/64/000000/external-User-essential-collection-bearicons-glyph-bearicons.png"/>
+          <img
+            src="https://img.icons8.com/external-bearicons-glyph-bearicons/64/000000/external-User-essential-collection-bearicons-glyph-bearicons.png"
+          />
           <span>Tấn Khanh</span>
         </div>
         <div class="personal-area__cart">
-          <img src="https://img.icons8.com/external-icongeek26-outline-icongeek26/64/ffffff/external-cart-user-interface-icongeek26-outline-icongeek26.png"/>
+          <img
+            src="https://img.icons8.com/external-icongeek26-outline-icongeek26/64/ffffff/external-cart-user-interface-icongeek26-outline-icongeek26.png"
+          />
         </div>
       </div>
     </div>
@@ -37,7 +47,32 @@
 </template>
 
 <script>
-export default {};
+import { mapActions, mapGetters, mapMutations } from "vuex";
+export default {
+  data() {
+    return {
+      searchText: "",
+    };
+  },
+  computed: {
+    ...mapGetters("product", ["getSearchText"]),
+  },
+  methods: {
+    ...mapActions("product", ["getAllProduct"]),
+    ...mapMutations("product", ["SET_SEARCH_TEXT"]),
+
+    async searchProduct() {
+      const productPage = {
+        page: 1,
+        size: 30,
+        keyword: this.searchText,
+      };
+      this.SET_SEARCH_TEXT(this.searchText);
+
+      await this.getAllProduct(productPage);
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -93,7 +128,7 @@ export default {};
 }
 
 .btn-search svg {
-  margin-right: .5rem;
+  margin-right: 0.5rem;
 }
 
 .personal-area {
@@ -124,7 +159,7 @@ export default {};
   align-items: center;
 }
 
-.personal-area__cart img{
+.personal-area__cart img {
   width: 40px;
   height: 40px;
 }
