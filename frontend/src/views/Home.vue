@@ -1,7 +1,7 @@
 <template>
   <div class="body">
     <div class="container grid wide">
-      <template v-for="(productLine, index) in productLines">
+      <template v-for="(productLine, index) in this.getProductSplited">
         <div class="row sm-gutter" :key="index">
           <template v-for="productItem in productLine">
             <card-item
@@ -14,33 +14,28 @@
       </template>
     </div>
     <pagination
-      :total-pages="getProductPage.totalPages"
-      :per-page="getProductPage.totalItems"
-      :current-page="getProductPage.currentPage"
+      :total-pages="productPage.totalPages"
+      :per-page="productPage.totalItems"
+      :current-page="productPage.currentPage"
       @pagechanged="onPageChange"
     />
   </div>
 </template>
 
 <script>
-import { mapActions, mapGetters } from "vuex";
+import { mapActions, mapGetters, mapState } from "vuex";
 import CardItem from "../components/card/CardItem.vue";
 import Pagination from "../components/pagination/Pagination.vue";
 export default {
   components: { CardItem, Pagination },
-  data() {
-    return {
-      productLines: [],
-    };
-  },
   computed: {
-    ...mapGetters("product", ["getProductPage"]),
+    ...mapState("product", ["searchText", "productPage"]),
+    ...mapGetters("product", ["getProductSplited"])
   },
   async created() {
     await this.getProductAction({
       size: 20,
     });
-    this.productLines = this.splitArray(this.getProductPage.products, 5);
   },
   methods: {
     ...mapActions("product", ["getAllProduct"]),
@@ -49,22 +44,14 @@ export default {
       await this.getAllProduct(productPage);
     },
     onPageChange(page) {
-      this.getProductPage.currentPage = page;
+      this.productPage.currentPage = page;
       const productPage = {
-        page: this.getProductPage.currentPage,
+        page: this.productPage.currentPage,
         size: 20,
         sort: "",
-        keyword: "",
+        keyword: this.searchText,
       };
       this.getProductAction(productPage);
-      this.productLines = this.splitArray(this.getProductPage.products, 5);
-    },
-    splitArray(array, part) {
-      let tmp = [];
-      for (let i = 0; i < array.length; i += part) {
-        tmp.push(array.slice(i, i + part));
-      } 
-      return tmp;
     },
   },
 };

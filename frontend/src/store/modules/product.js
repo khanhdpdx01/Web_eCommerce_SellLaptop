@@ -2,6 +2,7 @@ import ProductService from "../../services/Product";
 const service = new ProductService();
 
 const state = {
+    searchText: "",
     productPage: {
         products: [],
         currentPage: 0,
@@ -11,6 +12,9 @@ const state = {
 }
 
 const mutations = {
+    SET_SEARCH_TEXT(state, searchText) {
+        state.searchText = searchText;
+    },
     SET_PRODUCT_PAGE(state, productPage) {
         state.productPage.currentPage = productPage.currentPage;
         state.productPage.totalItems = productPage.totalItems;
@@ -28,6 +32,14 @@ const actions = {
 
 const getters = {
     getProductPage: (state) => state.productPage,
+    getSearchText: (state) => state.searchText,
+    getProductSplited: (state) => {
+        let tmp = [];
+        for (let i = 0; i < state.productPage.products.length; i += 5) {
+            tmp.push(state.productPage.products.slice(i, i + 5));
+        }
+        return tmp;
+    }
 }
 
 export default {
