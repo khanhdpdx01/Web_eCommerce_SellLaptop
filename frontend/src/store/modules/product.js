@@ -27,7 +27,7 @@ const actions = {
     async getAllProduct({ commit }, productPage) {
         let response = await service.findAll(productPage);
         commit('SET_PRODUCT_PAGE', response.data);
-    },
+    }
 }
 
 const getters = {

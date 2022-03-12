@@ -2,7 +2,14 @@
   <nav class="navbar">
     <div class="container grid wide">
       <div class="logo-menu">
-        <img class="logo" :src="require('../assets/images/logo.png')" alt="" />
+        <router-link
+          :to="{ name: 'home' }"
+          tag="img"
+          class="logo"
+          :src="require('../assets/images/logo.png')"
+          alt="logo"
+        >
+        </router-link>
         <div class="search-area">
           <input
             v-model="searchText"

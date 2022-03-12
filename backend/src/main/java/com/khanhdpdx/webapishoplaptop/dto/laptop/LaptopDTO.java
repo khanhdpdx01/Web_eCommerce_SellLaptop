@@ -27,6 +27,8 @@ public class LaptopDTO {
 
     private Double discount;
 
+    private String slug;
+
     private Date enteredDate;
 
     private Integer status;
