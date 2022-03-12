@@ -68,10 +68,11 @@ public class LaptopController {
                 sortBy);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{slug}")
     @ResponseBody
-    public LaptopDTO findOne(@PathVariable Long id) {
-        return laptopService.findById(id);
+    public ResponseEntity findOne(@PathVariable String slug) {
+        LaptopDTO laptopDTO = laptopService.findBySlug(slug);
+        return ResponseEntity.ok(laptopDTO);
     }
 
     @GetMapping("/cart")

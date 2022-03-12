@@ -5,10 +5,12 @@ import com.khanhdpdx.webapishoplaptop.dto.laptop.LaptopDTO;
 import com.khanhdpdx.webapishoplaptop.dto.laptop.LaptopMapper;
 import com.khanhdpdx.webapishoplaptop.entity.Category;
 import com.khanhdpdx.webapishoplaptop.entity.Laptop;
+import com.khanhdpdx.webapishoplaptop.exception.ResourceNotFoundException;
 import com.khanhdpdx.webapishoplaptop.repository.LaptopRepository;
 import com.khanhdpdx.webapishoplaptop.service.LaptopService;
 import com.khanhdpdx.webapishoplaptop.utils.FileUploadUtil;
 import com.khanhdpdx.webapishoplaptop.utils.PagingAndSortingUtil;
+import com.khanhdpdx.webapishoplaptop.utils.Slugify;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
@@ -103,5 +105,25 @@ public class LaptopServiceImpl implements LaptopService {
 
         List<LaptopDTO> laptopDTOs = LaptopMapper.MAPPER.fromLaptops(laptops.getContent());
         return new PageImpl<>(laptopDTOs, pageable, laptops.getTotalElements());
+    }
+
+    public List<LaptopDTO> createSlug() {
+        List<Laptop> laptops = laptopRepository.findAll();
+
+        for(Laptop laptop : laptops) {
+            laptop.setDiscount(0D);
+        }
+        List<LaptopDTO> laptopDTOS = LaptopMapper.MAPPER.fromLaptops(laptops);
+
+        laptopRepository.saveAll(laptops);
+
+        return laptopDTOS;
+    }
+
+    public LaptopDTO findBySlug(String slug) {
+        Laptop laptop = laptopRepository.findBySlug(slug)
+                .orElseThrow(() -> new ResourceNotFoundException("Product wasn't found"));
+
+        return LaptopMapper.MAPPER.from(laptop);
     }
 }

@@ -38,6 +38,8 @@ public class Laptop {
     @Column(nullable = false)
     private Double discount;
     @Column(nullable = false)
+    private String slug;
+    @Column(nullable = false)
     private Integer status;
 
     @ManyToOne(fetch = FetchType.LAZY)
