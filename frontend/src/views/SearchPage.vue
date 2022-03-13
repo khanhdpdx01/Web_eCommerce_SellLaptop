@@ -12,39 +12,43 @@
 
 <script>
 import { mapActions, mapGetters, mapState } from "vuex";
-// import CardItem from "../components/card/CardItem.vue";
 import CardList from "../components/card/CardList.vue";
 import Pagination from "../components/pagination/Pagination.vue";
 export default {
   components: { Pagination, CardList },
   computed: {
-    ...mapState("product", ["productPage"]),
+    ...mapState("product", ["searchText", "productPage"]),
     ...mapGetters("product", ["getProductSplited"]),
   },
   async created() {
     await this.getAllProduct({
-      page: 1,
+      keyword: this.searchText || "",
       size: 20,
     });
+  },
+  watch: {
+    async "$route.query.q"() {
+      await this.getAllProduct({
+        keyword: this.searchText || "",
+        size: 20,
+      });
+    },
   },
   methods: {
     ...mapActions("product", ["getAllProduct"]),
 
     onPageChange(page) {
       this.productPage.currentPage = page;
-      this.getAllProduct({
+      const productPage = {
         page: this.productPage.currentPage,
-        size: 20
-      });
+        size: 20,
+        sort: "",
+        keyword: this.searchText,
+      };
+      this.getAllProduct(productPage);
     },
   },
 };
 </script>
 
-<style scoped>
-@import "../assets/css/grid.css";
-
-.container {
-  margin-bottom: 2rem;
-}
-</style>
+<style></style>

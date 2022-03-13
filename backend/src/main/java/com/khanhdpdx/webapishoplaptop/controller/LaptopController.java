@@ -81,14 +81,6 @@ public class LaptopController {
         return cart;
     }
 
-    /*@ModelAttribute("cart")
-    public List<ShoppingCartDTO> create(HttpServletRequest request) {
-        // fix error: Cannot create a session after the response has been committed
-        // followed by https://github.com/spring-projects/spring-framework/issues/17475
-        request.getSession(true);
-        return new ArrayList<>();
-    }*/
-
     @GetMapping("/cart/{laptop-id}")
     @ResponseBody
     public List<OrderDetailDTO> addToCart(/*@ModelAttribute("cart") List<ShoppingCartDTO> cart,*/

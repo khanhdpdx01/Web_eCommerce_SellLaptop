@@ -2,14 +2,12 @@
   <nav class="navbar">
     <div class="container grid wide">
       <div class="logo-menu">
-        <router-link
-          :to="{ name: 'home' }"
-          tag="img"
+        <img
           class="logo"
           :src="require('../assets/images/logo.png')"
           alt="logo"
-        >
-        </router-link>
+          @click="goHome()"
+        />
         <div class="search-area">
           <input
             v-model="searchText"
@@ -69,14 +67,20 @@ export default {
     ...mapMutations("product", ["SET_SEARCH_TEXT"]),
 
     async searchProduct() {
-      const productPage = {
-        page: 1,
-        size: 30,
-        keyword: this.searchText,
-      };
       this.SET_SEARCH_TEXT(this.searchText);
 
-      await this.getAllProduct(productPage);
+      this.$router.push({ name: "search", query: { q: this.searchText } });
+    },
+    async goHome() {
+      this.$store.dispatch("product/resetState");
+      this.searchText = "";
+
+      this.$router.push({ name: "home" });
+
+      await this.getAllProduct({
+        page: 1,
+        size: 20,
+      });
     },
   },
 };
