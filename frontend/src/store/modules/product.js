@@ -12,6 +12,9 @@ const state = {
 }
 
 const mutations = {
+    RESET_STATE(state) {
+        state.searchText = "";
+    },
     SET_SEARCH_TEXT(state, searchText) {
         state.searchText = searchText;
     },
@@ -24,6 +27,9 @@ const mutations = {
 }
 
 const actions = {
+    async resetState({ commit }) {
+        commit('RESET_STATE');
+    },
     async getAllProduct({ commit }, productPage) {
         let response = await service.findAll(productPage);
         commit('SET_PRODUCT_PAGE', response.data);

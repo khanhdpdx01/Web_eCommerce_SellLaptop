@@ -187,11 +187,11 @@ export default {
 }
 
 .product-description {
-    width: 100%;
-    height: auto;
-    background-color: #fff;
-    margin-top: 1rem;
-    padding: 1rem;
+  width: 100%;
+  height: auto;
+  background-color: #fff;
+  margin-top: 1rem;
+  padding: 1rem;
 }
 
 </style>
