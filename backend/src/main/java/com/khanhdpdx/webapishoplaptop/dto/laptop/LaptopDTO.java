@@ -19,13 +19,13 @@ public class LaptopDTO {
 
     private String name;
 
-    private Float unitPrice;
+    private Float price;
 
     private String linkImage;
 
     private String description;
 
-    private Double discount;
+    private Integer discount;
 
     private String slug;
 

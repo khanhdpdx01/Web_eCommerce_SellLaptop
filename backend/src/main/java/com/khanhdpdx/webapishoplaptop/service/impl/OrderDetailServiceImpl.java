@@ -25,7 +25,7 @@ public class OrderDetailServiceImpl implements OrderDetailService {
         orderDetail.setLaptopId(orderDetailDTO.getLaptop().getLaptopId())
                 .setOrderId(orderId)
                 .setQuantity(orderDetailDTO.getQuantity())
-                .setUnitPrice(orderDetailDTO.getUnitPrice())
+                .setPrice(orderDetailDTO.getPrice())
                 .setDiscount(orderDetailDTO.getDiscount());
 
         return orderDetailRepository.save(orderDetail);

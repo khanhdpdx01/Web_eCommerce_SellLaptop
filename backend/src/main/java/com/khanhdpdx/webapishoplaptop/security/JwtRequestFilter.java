@@ -1,5 +1,6 @@
 package com.khanhdpdx.webapishoplaptop.security;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,8 +15,11 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
+
+import static com.khanhdpdx.webapishoplaptop.constant.ApplicationConstant.ACCESS_TOKEN_COOKIE;
 
 @Component
 public class JwtRequestFilter extends OncePerRequestFilter {
@@ -30,39 +34,27 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        /*final String bearerHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (bearerHeader == null || bearerHeader.isEmpty() || !bearerHeader.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response);
-            return;
+        Optional<Cookie> cookieToken = Stream.of(Optional.ofNullable(request.getCookies()).orElse(new Cookie[0]))
+                .filter(cookie -> ACCESS_TOKEN_COOKIE.equals(cookie.getName()))
+                .findFirst();
+
+        try {
+            if (cookieToken.isPresent()) {
+                final String token = cookieToken.get().getValue();
+
+                if (jwtTokenUtil.validateToken(token)) {
+                    UserDetails userDetails = setSecurityContext(request, token);
+                }
+            }
+        } catch (ExpiredJwtException e) {
+            System.out.println("Token is expired");
         }
+        filterChain.doFilter(request, response);
+    }
 
-        final String token = bearerHeader.split(" ")[1].trim();*/
-
-        Cookie[] cookies = request.getCookies();
-        Cookie auth = null;
-
-        if (cookies != null) {
-            auth = Arrays.stream(cookies)
-                    .filter(cookie -> "access_token".equals(cookie.getName()))
-                    .findFirst()
-                    .orElse(null);
-        }
-
-        if (auth == null || cookies == null) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        final String token = auth.getValue();
-
-        // Get user identity and set it on spring security context
+    // Get user identity and set it on spring security context
+    private UserDetails setSecurityContext(HttpServletRequest request, String token) {
         UserDetails userDetails = this.userDetailsService.loadUserByUsername(jwtTokenUtil.getUsernameFromToken(token));
-        // get jwt token and validate
-        if (!jwtTokenUtil.validateToken(token, userDetails)) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                 userDetails, null,
                 userDetails == null ? List.of() : userDetails.getAuthorities());
@@ -70,8 +62,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
         SecurityContextHolder.getContext().setAuthentication(authToken);
-
-        filterChain.doFilter(request, response);
+        return userDetails;
     }
-
 }

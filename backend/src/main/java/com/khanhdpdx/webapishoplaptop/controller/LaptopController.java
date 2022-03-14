@@ -92,7 +92,7 @@ public class LaptopController {
             if (item.getLaptop().getLaptopId().equals(id)) {
                 existedLaptop = true;
                 item.setQuantity(item.getQuantity() + 1);
-                item.setUnitPrice(item.getUnitPrice() + item.getLaptop().getUnitPrice());
+                item.setPrice(item.getPrice() + item.getLaptop().getPrice());
             }
         }
 
@@ -102,7 +102,7 @@ public class LaptopController {
             cart.add(new OrderDetailDTO(
                     newItem,
                     1,
-                    newItem.getUnitPrice(),
+                    newItem.getPrice(),
                     0
             ));
         }
@@ -119,7 +119,7 @@ public class LaptopController {
             for (OrderDetailDTO item : cart) {
                 if (item.getLaptop().getLaptopId().equals(id)) {
                     item.setQuantity(quantity);
-                    item.setUnitPrice(item.getLaptop().getUnitPrice() * quantity);
+                    item.setPrice(item.getLaptop().getPrice() * quantity);
                     break;
                 }
             }

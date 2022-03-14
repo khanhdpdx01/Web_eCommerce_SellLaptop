@@ -1,7 +1,5 @@
 package com.khanhdpdx.webapishoplaptop.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,7 +10,6 @@ import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
 import java.util.Date;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -28,7 +25,7 @@ public class Laptop {
     @Column(name = "name", columnDefinition = "nvarchar(255) not null")
     private String name;
     @Column(nullable = false)
-    private Float unitPrice;
+    private Float price;
     @Column(columnDefinition = "nvarchar(255) not null")
     private String linkImage;
     @Column(columnDefinition = "text not null")

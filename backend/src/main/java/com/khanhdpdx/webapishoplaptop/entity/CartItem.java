@@ -6,7 +6,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.IdClass;
+import javax.persistence.Table;
 import java.util.Date;
 
 @Getter
@@ -15,29 +18,25 @@ import java.util.Date;
 @AllArgsConstructor
 @Accessors(chain = true)
 @Entity
-@Table(name = "order_detail")
-@IdClass(OrderDetailId.class)
-public class OrderDetail {
+@Table(name = "cart_item")
+@IdClass(CartItemId.class)
+public class CartItem {
+    @Id
+    private Long cartId;
     @Id
     private Long laptopId;
-    @Id
-    private Long orderId;
-    /*@ManyToOne
-    @JoinColumn(name = "laptopId")
-    private Laptop laptop;
 
-    @ManyToOne
-    @JoinColumn(name = "orderId")
-    private Order order;*/
-
-    @Column(nullable = false)
     private Integer quantity;
-    @Column(nullable = false)
+
     private Float price;
-    @Column(nullable = true)
+
     private Integer discount;
 
     private Float shipFee;
 
     private Date createdAt;
+
+    private Date updatedAt;
+
+    private Date deletedAt;
 }
