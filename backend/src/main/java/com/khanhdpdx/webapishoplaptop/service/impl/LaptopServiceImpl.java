@@ -10,17 +10,14 @@ import com.khanhdpdx.webapishoplaptop.repository.LaptopRepository;
 import com.khanhdpdx.webapishoplaptop.service.LaptopService;
 import com.khanhdpdx.webapishoplaptop.utils.FileUploadUtil;
 import com.khanhdpdx.webapishoplaptop.utils.PagingAndSortingUtil;
-import com.khanhdpdx.webapishoplaptop.utils.Slugify;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.khanhdpdx.webapishoplaptop.constant.ApplicationConstant.UPLOAD_DIR;
@@ -44,10 +41,11 @@ public class LaptopServiceImpl implements LaptopService {
     }
 
     @Override
-    public LaptopDTO findById(Long id) {
-        Optional<Laptop> laptop = laptopRepository.findById(id);
-        if (laptop.isPresent()) return modelMapper.map(laptop.get(), LaptopDTO.class);
-        return null;
+    public LaptopDTO findById(Long laptopId) {
+        Laptop laptop = laptopRepository.findByLaptopId(laptopId)
+                .orElseThrow(() -> new ResourceNotFoundException("Laptop wasn't found"));
+
+        return LaptopMapper.MAPPER.from(laptop);
     }
 
     @Override
@@ -59,7 +57,7 @@ public class LaptopServiceImpl implements LaptopService {
                     .setDescription(createLaptopDTO.getDescription())
                     .setName(createLaptopDTO.getName())
                     .setStatus(createLaptopDTO.getStatus())
-                    .setUnitPrice(createLaptopDTO.getUnitPrice())
+                    .setPrice(createLaptopDTO.getPrice())
                     .setEnteredDate(new Date());
             id = laptopRepository.save(laptop).getLaptopId();
 
@@ -110,7 +108,7 @@ public class LaptopServiceImpl implements LaptopService {
     public List<LaptopDTO> createSlug() {
         List<Laptop> laptops = laptopRepository.findAll();
 
-        for(Laptop laptop : laptops) {
+        for (Laptop laptop : laptops) {
             laptop.setDiscount(0D);
         }
         List<LaptopDTO> laptopDTOS = LaptopMapper.MAPPER.fromLaptops(laptops);

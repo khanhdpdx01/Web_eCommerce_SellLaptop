@@ -20,7 +20,7 @@ public class CreateLaptopDTO {
     @NotNull
     private String name;
     @Min(value = 0)
-    private Float unitPrice;
+    private Float price;
     @NotNull
     private String description;
     @Min(value = 1L)

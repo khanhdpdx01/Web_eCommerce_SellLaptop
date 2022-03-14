@@ -13,7 +13,7 @@ public class OrderDetailDTO {
 
     private Integer quantity;
 
-    private Float unitPrice;
+    private Float price;
 
     private Integer discount;
 }

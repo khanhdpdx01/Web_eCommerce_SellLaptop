@@ -21,4 +21,6 @@ public interface LaptopRepository extends JpaRepository<Laptop, Long> {
 
     @Query("SELECT l FROM Laptop l WHERE l.slug = :slug")
     Optional<Laptop> findBySlug(@Param("slug") String slug);
+
+    Optional<Laptop> findByLaptopId(Long laptopId);
 }
