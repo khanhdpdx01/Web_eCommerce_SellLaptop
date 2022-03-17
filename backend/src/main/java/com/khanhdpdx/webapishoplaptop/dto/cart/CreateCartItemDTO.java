@@ -9,4 +9,5 @@ import lombok.Setter;
 @NoArgsConstructor
 public class CreateCartItemDTO {
     private Long laptopId;
+    private Integer quantity;
 }

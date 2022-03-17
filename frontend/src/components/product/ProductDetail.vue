@@ -2,10 +2,7 @@
   <div class="product-detail grid wide">
     <div class="container">
       <div class="product-detail__img">
-        <img
-          :src="product.linkImage"
-          alt=""
-        />
+        <img :src="product.linkImage" alt="" />
       </div>
       <div class="product-detail__info">
         <div class="header">
@@ -36,49 +33,80 @@
         </div>
         <div class="body">
           <div class="price">
-            {{ Intl.NumberFormat("vi-VN", undefined).format(product.unitPrice) }}đ
+            {{ Intl.NumberFormat("vi-VN", undefined).format(product.price) }}đ
           </div>
           <div class="add-to-cart">
             <span>Số lượng</span>
             <div class="group-input">
-              <button>+</button>
-              <input type="text" class="input" value="1" />
-              <button>-</button>
+              <button class="btn-decs" @click="decrease()">-</button>
+              <input type="text" class="input" :value="this.quantity" />
+              <button class="btn-inc" @click="increase()">+</button>
             </div>
             <div class="group-button">
-              <button class="btn btn-add">Chọn mua</button>
+              <button class="btn btn-add" @click="addProductToCart()">
+                Chọn mua
+              </button>
             </div>
           </div>
         </div>
       </div>
     </div>
     <div class="product-description">
-        <div class="header">
-            <p>Mô tả sản phẩm</p>
-        </div>
-        <div class="body">
-            {{product.description}} 
-        </div>
+      <div class="header">
+        <p>Mô tả sản phẩm</p>
+      </div>
+      <div class="body">
+        {{ product.description }}
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import ProductService from '../../services/Product'
+import { mapActions, mapState } from "vuex";
+import ProductService from "../../services/ProductService";
+import CartService from "../../services/CartService";
 const service = new ProductService();
+const cartService = new CartService();
 
 export default {
-    data() {
-        return {
-            product: "",
-        }
+  data() {
+    return {
+      product: "",
+      quantity: 1,
+    };
+  },
+  computed: {
+    ...mapState("user", ["isAuthenticated"]),
+    ...mapState("cart", ["cart"]),
+  },
+  async created() {
+    const slug = this.$route.params.slug;
+    const response = await service.getProductBySlug(slug);
+    const data = await response.data;
+    this.product = data;
+  },
+  methods: {
+    ...mapActions("cart", ["getCart"]),
+    increase() {
+      this.quantity += 1;
     },
-    async created() {
-        const slug = this.$route.params.slug;
-        const response = await service.getProductBySlug(slug);
-        const data = await response.data;
-        this.product = data;
-    }
+    decrease() {
+      if (this.quantity > 1) {
+        this.quantity -= 1;
+      }
+    },
+    async addProductToCart() {
+      if (!this.isAuthenticated) {
+        this.$router.push({ name: "login" });
+      } else {
+        await cartService.addProduct({
+          laptopId: this.product.laptopId,
+          quantity: this.quantity,
+        });
+      }
+    },
+  },
 };
 </script>
 
@@ -96,8 +124,8 @@ export default {
 }
 
 .product-detail__img img {
-    width: 444px;
-    height: 444px;
+  width: 444px;
+  height: 444px;
 }
 
 .product-detail__info {
@@ -141,42 +169,6 @@ export default {
   border-top: 1px solid rgb(242, 242, 242);
 }
 
-.group-input {
-  margin-top: 1rem;
-}
-
-.group-input button,input {
-  height: 30px;
-  color: rgb(36, 36, 36);
-  font-size: 14px;
-  text-align: center;
-  outline: none;
-  transition: border-color 0.15s ease-in-out 0s, box-shadow 0.15s ease-in-out 0s;
-}
-.group-input > button {
-  cursor: pointer;
-  width: 30px;
-  background-color: rgb(255, 255, 255);
-  border: 1px solid rgb(236, 236, 236);
-  padding: 4px;
-}
-
-.group-input button:first-child {
-  border-right: none;
-  border-radius: 4px 0px 0px 4px;
-}
-
-.group-input button:last-child {
-  border-left: none;
-  border-radius: 0px 4px 4px 0px;
-}
-
-.group-input .input {
-  width: 40px;
-  height: 30px;
-  border: 1px solid rgb(236, 236, 236);
-}
-
 .group-button {
   margin-top: 1rem;
 }
@@ -193,5 +185,4 @@ export default {
   margin-top: 1rem;
   padding: 1rem;
 }
-
 </style>

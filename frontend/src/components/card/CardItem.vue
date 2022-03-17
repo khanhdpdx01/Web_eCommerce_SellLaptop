@@ -28,7 +28,7 @@
       <div class="card-price">
         <span class="price"
           >{{
-            Intl.NumberFormat("vi-VN", undefined).format(productItem.unitPrice)
+            Intl.NumberFormat("vi-VN", undefined).format(productItem.price)
           }}đ</span
         >
         <span class="discount">-{{ productItem.discount }}%</span>
@@ -44,7 +44,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .card {
   display: flex;
   flex-direction: column;

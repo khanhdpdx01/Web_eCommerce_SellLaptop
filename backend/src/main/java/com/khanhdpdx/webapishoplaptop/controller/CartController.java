@@ -1,5 +1,6 @@
 package com.khanhdpdx.webapishoplaptop.controller;
 
+import com.khanhdpdx.webapishoplaptop.dto.cart.CartDTO;
 import com.khanhdpdx.webapishoplaptop.dto.cart.CreateCartItemDTO;
 import com.khanhdpdx.webapishoplaptop.dto.cart.DeleteCartItemDTO;
 import com.khanhdpdx.webapishoplaptop.dto.cart.UpdateCartItemDTO;
@@ -21,6 +22,15 @@ public class CartController {
         this.cartService = cartService;
     }
 
+    @GetMapping
+    public ResponseEntity getCart() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserPrincipal userDetails = (UserPrincipal) authentication.getPrincipal();
+
+        CartDTO cartDTO = cartService.getCart(userDetails.getUserId());
+        return ResponseEntity.ok(cartDTO);
+    }
+
     @PostMapping("/add-product")
     public ResponseEntity addProductToCart(@RequestBody CreateCartItemDTO createCartItemDTO) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -34,8 +44,10 @@ public class CartController {
             cart = cartService.findCartByUserId(userDetails.getUserId());
         }
 
-        CartItem cartItem = cartService.addProduct(cart.getCartId(), createCartItemDTO.getLaptopId());
-        return ResponseEntity.ok(cartItem);
+        cartService.addProduct(cart.getCartId(), createCartItemDTO);
+
+        CartDTO cartDTO = cartService.getCart(userDetails.getUserId());
+        return ResponseEntity.ok(cartDTO);
     }
 
     @PostMapping("/update-quantity")
@@ -45,8 +57,10 @@ public class CartController {
 
         Cart cart = cartService.findCartByUserId(userDetails.getUserId());
 
-        CartItem cartItem = cartService.updateProduct(cart.getCartId(), updateCartItemDTO);
-        return ResponseEntity.ok(cartItem);
+        cartService.updateProduct(cart.getCartId(), updateCartItemDTO);
+
+        CartDTO cartDTO = cartService.getCart(userDetails.getUserId());
+        return ResponseEntity.ok(cartDTO);
     }
 
     @DeleteMapping("/delete-product")
@@ -57,6 +71,8 @@ public class CartController {
         Cart cart = cartService.findCartByUserId(userDetails.getUserId());
 
         cartService.deleteProduct(cart.getCartId(), deleteCartItemDTO.getLaptopId());
-        return ResponseEntity.ok("Success");
+
+        CartDTO cartDTO = cartService.getCart(userDetails.getUserId());
+        return ResponseEntity.ok(cartDTO);
     }
 }

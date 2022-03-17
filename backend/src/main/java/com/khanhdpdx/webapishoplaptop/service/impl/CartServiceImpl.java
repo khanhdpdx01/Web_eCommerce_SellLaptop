@@ -1,7 +1,6 @@
 package com.khanhdpdx.webapishoplaptop.service.impl;
 
-import com.khanhdpdx.webapishoplaptop.dto.cart.CartItemMapper;
-import com.khanhdpdx.webapishoplaptop.dto.cart.UpdateCartItemDTO;
+import com.khanhdpdx.webapishoplaptop.dto.cart.*;
 import com.khanhdpdx.webapishoplaptop.dto.laptop.LaptopDTO;
 import com.khanhdpdx.webapishoplaptop.entity.Cart;
 import com.khanhdpdx.webapishoplaptop.entity.CartItem;
@@ -13,7 +12,9 @@ import com.khanhdpdx.webapishoplaptop.service.CartService;
 import com.khanhdpdx.webapishoplaptop.service.LaptopService;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -52,16 +53,22 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public CartItem addProduct(Long cartId, Long laptopId) {
-        LaptopDTO laptop = laptopService.findById(laptopId);
-        Optional<CartItem> cartItemOptional = cartItemRepository.findByCartIdAndLaptopId(cartId, laptopId);
+    public CartItem addProduct(Long cartId, CreateCartItemDTO createCartItemDTO) {
+        LaptopDTO laptop = laptopService.findById(createCartItemDTO.getLaptopId());
+        Optional<CartItem> cartItemOptional = cartItemRepository.findByCartIdAndLaptopId(
+                cartId,
+                createCartItemDTO.getLaptopId());
         CartItem cartItem;
 
         if (cartItemOptional.isPresent()) {
-            cartItem = CartItemMapper.MAPPER.from(laptop, cartId, cartItemOptional.get().getQuantity() + 1);
+            cartItem = CartItemMapper.MAPPER.fromLaptopDTO(
+                    laptop,
+                    cartId,
+                    cartItemOptional.get().getQuantity() + createCartItemDTO.getQuantity());
+            cartItem.setCreatedAt(cartItemOptional.get().getCreatedAt());
             cartItem.setUpdatedAt(new Date());
         } else {
-            cartItem = CartItemMapper.MAPPER.from(laptop, cartId, 1);
+            cartItem = CartItemMapper.MAPPER.fromLaptopDTO(laptop, cartId, createCartItemDTO.getQuantity());
             cartItem.setCreatedAt(new Date());
         }
 
@@ -78,7 +85,7 @@ public class CartServiceImpl implements CartService {
         ).orElseThrow(() -> new ResourceNotFoundException("Product wasn't found within cart"));
         CartItem cartItem;
 
-        cartItem = CartItemMapper.MAPPER.from(laptop, cartId, updateCartItemDTO.getQuantity());
+        cartItem = CartItemMapper.MAPPER.fromLaptopDTO(laptop, cartId, updateCartItemDTO.getQuantity());
         cartItem.setUpdatedAt(new Date());
 
         CartItem newCartItem = cartItemRepository.save(cartItem);
@@ -94,5 +101,29 @@ public class CartServiceImpl implements CartService {
         ).orElseThrow(() -> new ResourceNotFoundException("Product wasn't found within cart"));
 
         cartItemRepository.delete(cartItem);
+    }
+
+    @Override
+    public CartDTO getCart(Long userId) {
+        Cart cart = cartRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Cart wasn't found"));
+
+
+        List<CartItem> cartItems = cartItemRepository.findAllByCartId(cart.getCartId())
+                .orElseThrow(() -> new ResourceNotFoundException("Cart wasn't found"));
+
+        List<CartItemDTO> cartItemDTOs = new ArrayList<>();
+        LaptopDTO laptop;
+
+        for (CartItem cartItem : cartItems) {
+            laptop = laptopService.findById(cartItem.getLaptopId());
+            cartItemDTOs.add(CartItemMapper.MAPPER.fromCartItem(cartItem, laptop));
+        }
+
+        CartDTO cartDTO = new CartDTO();
+        cartDTO.setCartItems(cartItemDTOs);
+        cartDTO.setCartId(cart.getCartId());
+
+        return cartDTO;
     }
 }
