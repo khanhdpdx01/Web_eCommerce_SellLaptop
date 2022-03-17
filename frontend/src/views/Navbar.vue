@@ -35,14 +35,23 @@
         </div>
       </div>
       <div class="personal-area">
-        <div class="personal-area__img">
+        <div class="personal-area__img" v-if="this.isAuthenticated">
           <img
             src="https://img.icons8.com/external-bearicons-glyph-bearicons/64/000000/external-User-essential-collection-bearicons-glyph-bearicons.png"
           />
           <span>Tấn Khanh</span>
         </div>
+        <div class="personal-area__auth" v-else>
+          <router-link :to="{ name: 'login' }" class="login"
+            >Đăng nhập</router-link
+          >
+          <span>|</span>
+          <router-link :to="{ name: 'login' }" class="register"
+            >Đăng kí</router-link
+          >
+        </div>
         <div class="personal-area__cart">
-          <img
+          <router-link :to="{name: 'cart'}" tag="img"
             src="https://img.icons8.com/external-icongeek26-outline-icongeek26/64/ffffff/external-cart-user-interface-icongeek26-outline-icongeek26.png"
           />
         </div>
@@ -52,7 +61,7 @@
 </template>
 
 <script>
-import { mapActions, mapGetters, mapMutations } from "vuex";
+import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 export default {
   data() {
     return {
@@ -61,6 +70,7 @@ export default {
   },
   computed: {
     ...mapGetters("product", ["getSearchText"]),
+    ...mapState("user", ["isAuthenticated"]),
   },
   methods: {
     ...mapActions("product", ["getAllProduct"]),
@@ -148,6 +158,20 @@ export default {
   flex-direction: row;
   padding: 1rem;
   justify-content: space-around;
+}
+
+.personal-area__auth {
+  margin: auto;
+}
+
+.personal-area__auth a {
+  text-decoration: none;
+  color: #fff;
+  font-size: 14px;
+}
+
+.personal-area__auth span {
+  margin: 0.1rem;
 }
 
 .personal-area__img {
