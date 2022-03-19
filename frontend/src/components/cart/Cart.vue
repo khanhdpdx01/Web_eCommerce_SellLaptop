@@ -21,6 +21,7 @@ export default {
   components: { CartItem, CartHeader, CartUserInfo },
   async created() {
     await this.getCart();
+    console.log('Done...')
   },
   computed: {
     ...mapState("cart", ["cart"]),
